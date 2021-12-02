@@ -3,3 +3,6 @@
 
 # Recordings
 recordings/
+
+# Python cache
+__pycache__/
