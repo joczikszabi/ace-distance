@@ -1,0 +1,11 @@
+# run: conda env create --file environment.yml
+name: ace-distance
+channels:
+ - defaults
+dependencies:
+- python=3.6.8
+- pip
+- pip:
+  - numpy==1.19.5
+  - scipy==1.5.4
+  - opencv-python==4.5.1.48
