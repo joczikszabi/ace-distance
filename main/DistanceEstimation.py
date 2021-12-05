@@ -65,83 +65,110 @@ class DistanceEstimation:
         dist_ind = spatial.KDTree(grid_flatten).query(coordinate)
 
         # Convert back index to 2d array index format
-        print(f"shape: {dist_ind}")
         ind = (math.floor(dist_ind[1] / self.grid.shape[1]), dist_ind[1] % self.grid.shape[1])
         return (dist_ind[0], ind)
 
 
-    def calcResidual(self, coordinate, closest_node_idx):
+    def getAdjNodes(self, coordinate):
+        dist, closest_node_ind = self.getClosestNode(coordinate)
+        closest_node = np.asarray(self.grid[closest_node_ind[0], closest_node_ind[1]])
+
+        # Get adjacent nodes on x axis
+        if closest_node[0] < coordinate[0]:
+            prev_node_x = closest_node
+            next_node_x = np.asarray(self.grid[closest_node_ind[0], closest_node_ind[1] + 1])
+
+        else:
+            prev_node_x = np.asarray(self.grid[closest_node_ind[0], closest_node_ind[1] - 1])
+            next_node_x = closest_node
+
+        # Get adjacent nodes on y axis
+        if closest_node[1] < coordinate[1]:
+            prev_node_y = closest_node
+            next_node_y = np.asarray(self.grid[closest_node_ind[0] + 1, closest_node_ind[1]])
+
+        else:
+            prev_node_y = np.asarray(self.grid[closest_node_ind[0] - 1, closest_node_ind[1]])
+            next_node_y = closest_node
+
+
+        adj_nodes = {
+            "x": {
+                "prev": prev_node_x,
+                "next": next_node_x
+            },
+            "y": {
+                "prev": prev_node_y,
+                "next": next_node_y
+            },
+            "closest": closest_node
+        }
+        return adj_nodes
+
+
+    def projectCoordinate(self, coordinate, axis="x"):
+        adj_nodes = self.getAdjNodes(coordinate)
+
+        p0 = adj_nodes[axis]["prev"]
+        p1 = adj_nodes[axis]["next"]
+
+        l2 = np.sum((p0 - p1) ** 2)
+        t = np.sum((coordinate - p0) * (p1 - p0)) / l2
+
+        projection = p0 + t * (p1 - p0)
+        return (t, projection)
+
+
+    def calcResidual(self, coordinate1, coordinate2):
         # Calculates residual in terms of meters
 
-        # Convert to numpy array
-        coordinate = np.asarray(coordinate)
+        # Project coordinates
+        t_x, projection_x = self.projectCoordinate(coordinate1, "x")
+        t_y, projection_y = self.projectCoordinate(coordinate1, "y")
 
-        # Project vector on line defiend by x_prev and x
-        tmp = np.asarray(self.grid[closest_node_idx[0], closest_node_idx[1]])
-        if tmp[0] < coordinate[0]:
-            x = np.asarray(self.grid[closest_node_idx[0], closest_node_idx[1]+1])
-            x_prev = tmp
+        factor_x = (1 - t_x) if (t_x > 0.5) else t_x
+        factor_y = (1 - t_y) if (t_y > 0.5) else t_y
 
-            l2 = np.sum((x_prev-x)**2)
-            t = np.sum((coordinate - x_prev) * (x - x_prev)) / l2
-            percentage_x = 1 - t
-            projection_x = x_prev + t * (x - x_prev)
+        adj_nodes_1 = self.getAdjNodes(coordinate1)
+        adj_nodes_2 = self.getAdjNodes(coordinate2)
 
-        else:
-            x = tmp
-            x_prev = np.asarray(self.grid[closest_node_idx[0], closest_node_idx[1]-1])
+        min_x = min(adj_nodes_1["closest"][0], adj_nodes_2["closest"][0])
+        max_x = max(adj_nodes_1["closest"][0], adj_nodes_2["closest"][0])
+        if (min_x <= projection_x[0] <= max_x):
+            residual_coefficient_x = -1
+        else: 
+            residual_coefficient_x = 1
 
-            l2 = np.sum((x_prev-x)**2)
-            t = np.sum((coordinate - x_prev) * (x - x_prev)) / l2
-            percentage_x = t
-            projection_x = x_prev + t * (x - x_prev)
-            
-        print(f"indexes {closest_node_idx[0]} {closest_node_idx[1]}")
-        print(f"x={x}")
-        print(f"x_prev={x_prev}")
-        print(f"l2={l2}")
-        print(f"coordinate:{coordinate}")
-        print(f"t={t}")
-        print(f"projection x={projection_x}")
+        min_y = min(adj_nodes_1["closest"][1], adj_nodes_2["closest"][1])
+        max_y = max(adj_nodes_1["closest"][1], adj_nodes_2["closest"][1])
+        if (min_y <= projection_y[1] <= max_y):
+            residual_coefficient_y = -1
+        else: 
+            residual_coefficient_y = 1
 
-        # Project vector on line defiend by y_prev and y
-        tmp = np.asarray(self.grid[closest_node_idx[0], closest_node_idx[1]])
-        if tmp[1] < coordinate[1]:
-            y = np.asarray(self.grid[closest_node_idx[0] + 1, closest_node_idx[1]])
-            y_prev = tmp
 
-            l2 = np.sum((y_prev-y)**2)
-            t = np.sum((coordinate - y_prev) * (y - y_prev)) / l2
-            percentage_y = 1 - t
-            projection_y = y_prev + t * (y - y_prev)
+        residual_x = self.distance_between_nodes * factor_x * residual_coefficient_x
+        residual_y = self.distance_between_nodes * factor_y * residual_coefficient_y
 
-        else:
-            y = tmp
-            y_prev = np.asarray(self.grid[closest_node_idx[0] - 1, closest_node_idx[1]])
-
-            l2 = np.sum((y_prev-y)**2)
-            t = np.sum((coordinate - x_prev) * (y - y_prev)) / l2
-            percentage_y = t
-            projection_y = y_prev + t * (y - y_prev)
-
-        #print(f"percentage y={percentage_y}")
-        print(f"projection={(percentage_x, percentage_y)}")
-        return [[percentage_x, percentage_y], [projection_x, projection_y]]
-        #return (percentage_x, percentage_y)
+        print(f"residual: ({residual_x}, {residual_y})")
+        return (residual_x, residual_y)
     
     def estimateDistance(self, coordinate1, coordinate2):
         dist1, node_ind1 = self.getClosestNode(coordinate1)
         dist2, node_ind2 = self.getClosestNode(coordinate2)
-        print(f"closest to ball: {self.grid[node_ind1[0], node_ind1[1]]} {node_ind1}")
-        print(f"closest to hole: {self.grid[node_ind2[0], node_ind2[1]]} {node_ind2}")
 
-        resp1 = self.calcResidual(coordinate1, node_ind1)
-        resp2 = self.calcResidual(coordinate2, node_ind2)
+        print(f"coordinate (ball): {coordinate1}")
+        print(f"closest node to ball: {self.grid[node_ind1[0], node_ind1[1]]} {node_ind1}")
+        residual1 = self.calcResidual(coordinate1, coordinate2)
 
-        a = abs(node_ind1[0] - node_ind2[0]) * self.distance_between_nodes + 0
-        b = abs(node_ind1[1] - node_ind2[1]) * self.distance_between_nodes + 0
+        print(f"coordinate (hole): {coordinate2}")
+        print(f"closest node to hole: {self.grid[node_ind2[0], node_ind2[1]]} {node_ind2}")
+        residual2 = self.calcResidual(coordinate2, coordinate1)
+
+        a = abs(node_ind1[0] - node_ind2[0]) * self.distance_between_nodes + (residual1[0] + residual2[0])
+        b = abs(node_ind1[1] - node_ind2[1]) * self.distance_between_nodes + (residual1[1] + residual2[1])
 
         dist = math.sqrt(a**2 + b**2)
 
-        return [dist, resp1[1]]
+        return dist
         #return (dist, [percentages1, percentages2])

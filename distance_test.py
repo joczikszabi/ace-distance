@@ -16,24 +16,26 @@ def click_event(event, x, y, flags, params):
 
             font = cv2.FONT_HERSHEY_SIMPLEX
             #cv2.putText(img, str(x) + ',' + str(y), (x,y), font, 1, (255, 0, 0), 2)
-            cv2.putText(img, "Hole", (x,y), font, 1, (255, 0, 0), 2)
+            #cv2.putText(img, "Hole", (x,y), font, 1, (255, 0, 0), 2)
+            cv2.circle(img, (x, y), 5, (255, 0, 0), -1)
             cv2.imshow('image', img)
 
         else:
             # displaying the coordinates on the shell and image
-            res = estimator.estimateDistance((x,y), hole_coordinates)
-            d = round(res[0], 2)
-            print(res)
+            #dist, residual = estimator.estimateDistance((x,y), hole_coordinates)
+            dist = round(estimator.estimateDistance((x,y), hole_coordinates), 2)
+
             print(f"Golf ball located at pixel coordinates: ({x}, {y})")
-            print(f"Estimated distance between ball and hole: {d} meter(s)\n")
+            print(f"Estimated distance between ball and hole: {dist} meter(s)\n")
 
             # displaying the coordinates
             # on the image window
             font = cv2.FONT_HERSHEY_SIMPLEX
             #cv2.putText(img, str(x) + ',' + str(y), (x,y), font, 1, (255, 0, 0), 2)
-            cv2.circle(img, (int(res[1][0][0]), int(res[1][0][1])), 3, (0, 0, 255), 1)
-            cv2.circle(img, (int(res[1][1][0]), int(res[1][1][1])), 3, (0, 0, 255), 1)
-            cv2.putText(img, str(d), (x,y), font, 1, (255, 0, 0), 2)
+            #cv2.circle(img, (int(residual[0][0]), int(residual[0][1])), 3, (0, 0, 255), 1)
+            #cv2.circle(img, (int(residual[1][0]), int(residual[1][1])), 3, (0, 0, 255), 1)
+            cv2.circle(img, (x, y), 5, (0, 255, 255), -1)
+            cv2.putText(img, str(dist), (x,y), font, 1, (255, 0, 0), 2)
             cv2.imshow('image', img)
 
 if __name__=="__main__":
