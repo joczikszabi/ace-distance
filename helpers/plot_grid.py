@@ -15,4 +15,5 @@ def plot_grid(img, nodes):
 
 				# Draw a circle of red color of thickness -1 px
 				cv2.circle(img, node, radius, color, thickness)
-				cv2.imshow('image', img)
+
+	return img

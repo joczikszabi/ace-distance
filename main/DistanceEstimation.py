@@ -73,23 +73,27 @@ class DistanceEstimation:
         dist, closest_node_ind = self.getClosestNode(coordinate)
         closest_node = np.asarray(self.grid[closest_node_ind[0], closest_node_ind[1]])
 
-        # Get adjacent nodes on x axis
-        if closest_node[0] < coordinate[0]:
-            prev_node_x = closest_node
-            next_node_x = np.asarray(self.grid[closest_node_ind[0], closest_node_ind[1] + 1])
+        try:
+            # Get adjacent nodes on x axis
+            if closest_node[0] < coordinate[0]:
+                prev_node_x = closest_node
+                next_node_x = np.asarray(self.grid[closest_node_ind[0], closest_node_ind[1] + 1])
 
-        else:
-            prev_node_x = np.asarray(self.grid[closest_node_ind[0], closest_node_ind[1] - 1])
-            next_node_x = closest_node
+            else:
+                prev_node_x = np.asarray(self.grid[closest_node_ind[0], closest_node_ind[1] - 1])
+                next_node_x = closest_node
 
-        # Get adjacent nodes on y axis
-        if closest_node[1] < coordinate[1]:
-            prev_node_y = closest_node
-            next_node_y = np.asarray(self.grid[closest_node_ind[0] + 1, closest_node_ind[1]])
+            # Get adjacent nodes on y axis
+            if closest_node[1] < coordinate[1]:
+                prev_node_y = closest_node
+                next_node_y = np.asarray(self.grid[closest_node_ind[0] + 1, closest_node_ind[1]])
 
-        else:
-            prev_node_y = np.asarray(self.grid[closest_node_ind[0] - 1, closest_node_ind[1]])
-            next_node_y = closest_node
+            else:
+                prev_node_y = np.asarray(self.grid[closest_node_ind[0] - 1, closest_node_ind[1]])
+                next_node_y = closest_node
+        except:
+            print('Position out of grid layout!')
+            return None
 
 
         adj_nodes = {
@@ -146,23 +150,21 @@ class DistanceEstimation:
         else: 
             residual_coefficient_y = 1
 
-
         residual_x = self.distance_between_nodes * factor_x * residual_coefficient_x
         residual_y = self.distance_between_nodes * factor_y * residual_coefficient_y
-
-        print(f"residual: ({residual_x}, {residual_y})")
         return (residual_x, residual_y)
     
     def estimateDistance(self, coordinate1, coordinate2):
+        adj_nodes1 = self.getAdjNodes(coordinate1)
+        adj_nodes2 = self.getAdjNodes(coordinate2)
+
+        if adj_nodes1 is None or adj_nodes2 is None:
+            return None
+
         dist1, node_ind1 = self.getClosestNode(coordinate1)
         dist2, node_ind2 = self.getClosestNode(coordinate2)
 
-        print(f"coordinate (ball): {coordinate1}")
-        print(f"closest node to ball: {self.grid[node_ind1[0], node_ind1[1]]} {node_ind1}")
         residual1 = self.calcResidual(coordinate1, coordinate2)
-
-        print(f"coordinate (hole): {coordinate2}")
-        print(f"closest node to hole: {self.grid[node_ind2[0], node_ind2[1]]} {node_ind2}")
         residual2 = self.calcResidual(coordinate2, coordinate1)
 
         a = abs(node_ind1[0] - node_ind2[0]) * self.distance_between_nodes + (residual1[0] + residual2[0])

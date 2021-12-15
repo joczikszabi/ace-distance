@@ -1,6 +1,9 @@
 import os
 import cv2
 import numpy as np
+from scipy import ndimage
+from skimage.feature import peak_local_max
+from skimage.morphology import watershed
 import configparser
 
 class ObjectDetection:
@@ -132,24 +135,33 @@ class ObjectDetection:
         cv2.imwrite(f"{out_dir}/3tresh.jpg", thresh)
 
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,10))
-        opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 1)
+        opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 2)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,2))
+        opening = cv2.morphologyEx(opening, cv2.MORPH_OPEN, kernel, iterations = 2)
         cv2.imwrite(f"{out_dir}/4morph.jpg", opening)
 
-        # Combine surrounding noise with ROI
-        kernel = np.ones((1,1),np.uint8)
-        dilate = cv2.dilate(opening, kernel, iterations=2)
-        cv2.imwrite(f"{out_dir}/5dilate.jpg", dilate)
+        # Remove small noise by filtering using contour area
+        cnts = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+        for c in cnts:
+            if cv2.contourArea(c) < 50 or cv2.contourArea(c) > 1000:
+                cv2.drawContours(opening,[c], 0, (0,0,0), -1)
+
+        cv2.imwrite(f"{out_dir}/5contour.jpg", opening)
+
+
 
         #Crop bottom
         #cropped = dilate[50:dilate.shape[0]-300, 0:dilate.shape[1]]
         #cv2.imwrite("./tmp/6cropped.jpg", cropped)
 
-        contours, hierarchy = cv2.findContours(dilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         selected_contour = None
         max_area = 0
 
         for pic, contour in enumerate(contours):
-            contour_np = cnt2 = np.asarray([[alma[0][0], alma[0][1]] for alma in contour])
+            contour_np = np.asarray([[alma[0][0], alma[0][1]] for alma in contour])
             area = cv2.contourArea(contour)
 
             x_avg = np.mean(contour_np[:, 0])
@@ -172,7 +184,8 @@ class ObjectDetection:
         # Draw the contour on the new mask and perform the bitwise operation
         #res = cv2.drawContours(image, [cnt2],-1, 255, -1)
         res = cv2.circle(image_orig, (x,y-5), 2, (0, 0, 255), 2)
-        cv2.imwrite(f"{out_dir}/7result.jpg", res)
+        cv2.imwrite(f"{out_dir}/6result.jpg", res)
+        return (x,y)
 
 
     def findGolfBall(self):
@@ -186,25 +199,38 @@ class ObjectDetection:
             os.makedirs(out_dir)
 
         image_orig = self.img.copy()
-        image = image_orig[500:self.img.shape[0]-100, 300:self.img.shape[1]-300]
+        image = image_orig[550:self.img.shape[0]-100, 300:self.img.shape[1]-300]
         cv2.imwrite(f"{out_dir}/0image.jpg", image)
 
         gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
         cv2.imwrite(f"{out_dir}/1gray.jpg", gray)
 
-        whiten = cv2.convertScaleAbs(gray, alpha=1.15, beta=1.5)
-        cv2.imwrite(f"{out_dir}/2whiten.jpg", whiten)
-        
+        #whiten = cv2.convertScaleAbs(gray, alpha=1.15, beta=1.5)
+        #cv2.imwrite(f"{out_dir}/2whiten.jpg", whiten)
 
-        _, thresh = cv2.threshold(whiten, 220, 255, cv2.THRESH_BINARY)
+        _, thresh = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)
         cv2.imwrite(f"{out_dir}/3tresh.jpg", thresh)
 
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 1)
         cv2.imwrite(f"{out_dir}/4morph.jpg", opening)
 
-        circles = cv2.HoughCircles(opening, cv2.HOUGH_GRADIENT,1,20,
-                            param1=7,param2=7,minRadius=0,maxRadius=50)
+        # Remove small noise by filtering using contour area
+        cnts = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+        for c in cnts:
+            contour_np = np.asarray([[alma[0][0], alma[0][1]] for alma in c])
+            x_min = np.min(contour_np[:, 0])
+            x_max = np.max(contour_np[:, 0])
+
+            y_min = np.min(contour_np[:, 1])
+            y_max = np.max(contour_np[:, 1])
+            
+            if cv2.contourArea(c) > 25 or abs(y_min - y_max) > 6:
+                cv2.drawContours(opening,[c], 0, (0,0,0), -1)
+
+        cv2.imwrite(f"{out_dir}/5contour.jpg", opening)
 
 
         contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
@@ -212,27 +238,28 @@ class ObjectDetection:
         max_area = 0
 
         for pic, contour in enumerate(contours):
-            contour_np = cnt2 = np.asarray([[alma[0][0], alma[0][1]] for alma in contour])
+            contour_np = np.asarray([[alma[0][0], alma[0][1]] for alma in contour])
             area = cv2.contourArea(contour)
 
             x_avg = np.mean(contour_np[:, 0])
-            y_max = np.max(contour_np[:, 1])
-
-            # Too close to edge of the image, it cannot be the hole
-            if (x_avg < 100 or y_max < 15):
-                if area > max_area:
-                    continue
+            y_avg = np.mean(contour_np[:, 1])
 
             if area > max_area:
                 selected_contour = contour
                 max_area = area
+        
 
         # Create a new mask for the result image
-        cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+500] for alma in selected_contour])
-        x = int(np.ceil(np.mean(cnt2[:, 0])))
-        y = int(np.ceil(np.mean(cnt2[:, 1])))
+        if selected_contour is not None:
+            cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+550] for alma in selected_contour])
+            x = int(np.ceil(np.mean(cnt2[:, 0])))
+            y = int(np.ceil(np.mean(cnt2[:, 1])))
 
-        # Draw the contour on the new mask and perform the bitwise operation
-        #res = cv2.drawContours(image, [cnt2],-1, 255, -1)
-        res = cv2.circle(image_orig, (x,y), 2, (0, 0, 255), 2)
-        cv2.imwrite(f"{out_dir}/5result.jpg", res)
+            # Draw the contour on the new mask and perform the bitwise operation
+            #res = cv2.drawContours(image, [cnt2],-1, 255, -1)
+            res = cv2.circle(image_orig, (x,y), 2, (0, 0, 255), 2)
+            cv2.imwrite(f"{out_dir}/6result.jpg", res)
+
+            return (x,y)
+
+        return None
