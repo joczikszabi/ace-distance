@@ -13,6 +13,7 @@ class ObjectDetection:
 
         self.img_path = img_path
         self.img = cv2.imread(img_path)
+        self.img_name,_ = os.path.splitext(os.path.basename(img_path))
 
 
     def draw_lines(self, hough, image, nlines):
@@ -107,47 +108,64 @@ class ObjectDetection:
         #self.draw_lines(hough, erode, 10) 
 
     def findAceHole2(self):
+        # Create directory for outputs
+        out_dir = f"./tmp/{self.img_name}"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
         image_orig = self.img.copy()
-        image = image_orig[500:self.img.shape[0]-100, 300:self.img.shape[1]-300]
-        cv2.imwrite("image.jpg", image)
+        image = image_orig[485:self.img.shape[0]-100, 300:self.img.shape[1]-300]
+        cv2.imwrite(f"{out_dir}/0image.jpg", image)
 
         gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-        cv2.imwrite("0gray.jpg", gray)
+        cv2.imwrite(f"{out_dir}/1gray.jpg", gray)
 
-        element = np.ones((4, 4))
+        element = np.ones((5, 5))
         erode = cv2.erode(gray, element)
-        cv2.imwrite("01erode.jpg", erode)
+        cv2.imwrite(f"{out_dir}/2erode.jpg", erode)
 
-        ret, thresh = cv2.threshold(erode,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-        cv2.imwrite("1tresh.jpg", thresh)
+        thresh = cv2.adaptiveThreshold(erode,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,51,9)
+        cv2.imwrite(f"{out_dir}/3tresh.jpg", thresh)
 
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,8))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,10))
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 1)
-        cv2.imwrite("2morph.jpg", opening)
+        cv2.imwrite(f"{out_dir}/4morph.jpg", opening)
 
         # Combine surrounding noise with ROI
-        kernel = np.ones((3,3),np.uint8)
-        dilate = cv2.dilate(opening, kernel, iterations=3)
-        cv2.imwrite("3dilate.jpg", dilate)
+        kernel = np.ones((1,1),np.uint8)
+        dilate = cv2.dilate(opening, kernel, iterations=2)
+        cv2.imwrite(f"{out_dir}/5dilate.jpg", dilate)
 
         #Crop bottom
-        cropped = dilate[50:dilate.shape[0]-300, 0:dilate.shape[1]]
-        cv2.imwrite("4cropped.jpg", cropped)
+        #cropped = dilate[50:dilate.shape[0]-300, 0:dilate.shape[1]]
+        #cv2.imwrite("./tmp/6cropped.jpg", cropped)
 
-        contours, hierarchy = cv2.findContours(cropped, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        cnt = max(contours, key=cv2.contourArea)
+        contours, hierarchy = cv2.findContours(dilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        selected_contour = None
+        max_area = 0
+
+        for pic, contour in enumerate(contours):
+            contour_np = cnt2 = np.asarray([[alma[0][0], alma[0][1]] for alma in contour])
+            area = cv2.contourArea(contour)
+
+            x_avg = np.mean(contour_np[:, 0])
+            y_max = np.max(contour_np[:, 1])
+
+            # Too close to edge of the image, it cannot be the hole
+            if (x_avg < 100 or y_max < 15):
+                if area > max_area:
+                    continue
+
+            if area > max_area:
+                selected_contour = contour
+                max_area = area
 
         # Create a new mask for the result image
-        h, w = image.shape[:2]
-        mask = np.zeros((h, w), np.uint8)
-        cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+550] for alma in cnt])
-
+        cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+485] for alma in selected_contour])
         x = int(np.ceil(np.mean(cnt2[:, 0])))
-        y = max(cnt2[:, 1]) 
-
-        print(f"{x},{y}")
+        y = max(cnt2[:, 1])
 
         # Draw the contour on the new mask and perform the bitwise operation
         #res = cv2.drawContours(image, [cnt2],-1, 255, -1)
-        res = cv2.circle(image_orig, (x+1,y-5), 2, (0, 0, 255), 2)
-        cv2.imwrite("6result.jpg", res)
+        res = cv2.circle(image_orig, (x,y-5), 2, (0, 0, 255), 2)
+        cv2.imwrite(f"{out_dir}/7result.jpg", res)
