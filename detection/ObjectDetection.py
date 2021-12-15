@@ -113,6 +113,10 @@ class ObjectDetection:
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
+        out_dir = f"./tmp/{self.img_name}/hole"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
         image_orig = self.img.copy()
         image = image_orig[485:self.img.shape[0]-100, 300:self.img.shape[1]-300]
         cv2.imwrite(f"{out_dir}/0image.jpg", image)
@@ -169,3 +173,66 @@ class ObjectDetection:
         #res = cv2.drawContours(image, [cnt2],-1, 255, -1)
         res = cv2.circle(image_orig, (x,y-5), 2, (0, 0, 255), 2)
         cv2.imwrite(f"{out_dir}/7result.jpg", res)
+
+
+    def findGolfBall(self):
+        # Create directory for outputs
+        out_dir = f"./tmp/{self.img_name}"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        out_dir = f"./tmp/{self.img_name}/ball"
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        image_orig = self.img.copy()
+        image = image_orig[500:self.img.shape[0]-100, 300:self.img.shape[1]-300]
+        cv2.imwrite(f"{out_dir}/0image.jpg", image)
+
+        gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+        cv2.imwrite(f"{out_dir}/1gray.jpg", gray)
+
+        whiten = cv2.convertScaleAbs(gray, alpha=1.15, beta=1.5)
+        cv2.imwrite(f"{out_dir}/2whiten.jpg", whiten)
+        
+
+        _, thresh = cv2.threshold(whiten, 220, 255, cv2.THRESH_BINARY)
+        cv2.imwrite(f"{out_dir}/3tresh.jpg", thresh)
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+        opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 1)
+        cv2.imwrite(f"{out_dir}/4morph.jpg", opening)
+
+        circles = cv2.HoughCircles(opening, cv2.HOUGH_GRADIENT,1,20,
+                            param1=7,param2=7,minRadius=0,maxRadius=50)
+
+
+        contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        selected_contour = None
+        max_area = 0
+
+        for pic, contour in enumerate(contours):
+            contour_np = cnt2 = np.asarray([[alma[0][0], alma[0][1]] for alma in contour])
+            area = cv2.contourArea(contour)
+
+            x_avg = np.mean(contour_np[:, 0])
+            y_max = np.max(contour_np[:, 1])
+
+            # Too close to edge of the image, it cannot be the hole
+            if (x_avg < 100 or y_max < 15):
+                if area > max_area:
+                    continue
+
+            if area > max_area:
+                selected_contour = contour
+                max_area = area
+
+        # Create a new mask for the result image
+        cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+500] for alma in selected_contour])
+        x = int(np.ceil(np.mean(cnt2[:, 0])))
+        y = int(np.ceil(np.mean(cnt2[:, 1])))
+
+        # Draw the contour on the new mask and perform the bitwise operation
+        #res = cv2.drawContours(image, [cnt2],-1, 255, -1)
+        res = cv2.circle(image_orig, (x,y), 2, (0, 0, 255), 2)
+        cv2.imwrite(f"{out_dir}/5result.jpg", res)

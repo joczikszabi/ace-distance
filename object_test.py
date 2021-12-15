@@ -7,12 +7,14 @@ det.findAceHole2()
 
 det = ObjectDetection("./715-after.png")
 det.findAceHole2()
+det.findGolfBall()
 
 det = ObjectDetection("./753-before.png")
 det.findAceHole2()
 
 det = ObjectDetection("./763-after.png")
 det.findAceHole2()
+det.findGolfBall()
 
 det = ObjectDetection("./793-Before.png")
 det.findAceHole2()
