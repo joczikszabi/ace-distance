@@ -3,7 +3,11 @@
 
 # Recordings
 recordings/
+dataset/
 
 # Python cache
- __pycache__/
+ **__pycache__/
  *.pyc
+
+# IDE
+.idea/

@@ -45,9 +45,8 @@ class ObjectDetection:
 
             
     def findAceHole(self):
-
         image = self.img.copy()
-        image = image[300:self.img.shape[0]-100, 300:self.img.shape[1]-300]
+        image = image[500:self.img.shape[0]-100, 300:self.img.shape[1]-300]
         cv2.imwrite("image.jpg", image)
         gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
         cv2.imwrite("0gray.jpg", gray)
@@ -57,22 +56,40 @@ class ObjectDetection:
         cv2.imwrite("1erodedtresh.jpg", erode)
 
         # adaptive threshold
-        thresh = cv2.adaptiveThreshold(erode,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,51,9)
-        cv2.imwrite("2thresh.jpg", thresh)
+        #thresh = cv2.adaptiveThreshold(erode,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,51,9)
+        #cv2.imwrite("2thresh.jpg", thresh)
 
         # Fill rectangular contours
-        cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-        for c in cnts:
-            cv2.drawContours(thresh, [c], -1, (255,255,255), -1)
+        #cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #vcnts = cnts[0] if len(cnts) == 2 else cnts[1]
+        #for c in cnts:
+        #    cv2.drawContours(thresh, [c], -1, (255,255,255), -1)
 
         # Morph open
-        kernel = np.ones((6,2),np.uint8)
-        opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=4)
-        cv2.imwrite("3mop.jpg", opening)
+        #kernel = np.ones((6,2),np.uint8)
+        #opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=4)
+        #cv2.imwrite("3mop.jpg", opening)
+
+
+        # blur
+        blur = cv2.GaussianBlur(erode, (0,0), sigmaX=125, sigmaY=125)
+        cv2.imwrite("2blur.jpg", blur)
+
+        # divide
+        divide = cv2.divide(gray, blur, scale=255)
+        cv2.imwrite("3divide.jpg", divide)
+
+        # otsu threshold
+        thresh = cv2.threshold(divide, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
+        cv2.imwrite("4tresh.jpg", thresh)
+
+        # apply morphology
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,4))
+        morph = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        cv2.imwrite("5morph.jpg", morph)
 
         # Draw rectangles, the 'area_treshold' value was determined empirically
-        cnts = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts = cnts[0] if len(cnts) == 2 else cnts[1]
         area_treshold = 4000
         for c in cnts:
@@ -87,4 +104,50 @@ class ObjectDetection:
         maxLineGap = 20
         #hough = cv2.HoughLines(thresh, 1, np.pi / 180, 50, None, 50, 10) 
         #print(hough)
-        #self.draw_lines(hough, erode, 10)  
+        #self.draw_lines(hough, erode, 10) 
+
+    def findAceHole2(self):
+        image_orig = self.img.copy()
+        image = image_orig[500:self.img.shape[0]-100, 300:self.img.shape[1]-300]
+        cv2.imwrite("image.jpg", image)
+
+        gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+        cv2.imwrite("0gray.jpg", gray)
+
+        element = np.ones((4, 4))
+        erode = cv2.erode(gray, element)
+        cv2.imwrite("01erode.jpg", erode)
+
+        ret, thresh = cv2.threshold(erode,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        cv2.imwrite("1tresh.jpg", thresh)
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,8))
+        opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 1)
+        cv2.imwrite("2morph.jpg", opening)
+
+        # Combine surrounding noise with ROI
+        kernel = np.ones((3,3),np.uint8)
+        dilate = cv2.dilate(opening, kernel, iterations=3)
+        cv2.imwrite("3dilate.jpg", dilate)
+
+        #Crop bottom
+        cropped = dilate[50:dilate.shape[0]-300, 0:dilate.shape[1]]
+        cv2.imwrite("4cropped.jpg", cropped)
+
+        contours, hierarchy = cv2.findContours(cropped, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        cnt = max(contours, key=cv2.contourArea)
+
+        # Create a new mask for the result image
+        h, w = image.shape[:2]
+        mask = np.zeros((h, w), np.uint8)
+        cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+550] for alma in cnt])
+
+        x = int(np.ceil(np.mean(cnt2[:, 0])))
+        y = max(cnt2[:, 1]) 
+
+        print(f"{x},{y}")
+
+        # Draw the contour on the new mask and perform the bitwise operation
+        #res = cv2.drawContours(image, [cnt2],-1, 255, -1)
+        res = cv2.circle(image_orig, (x+1,y-5), 2, (0, 0, 255), 2)
+        cv2.imwrite("6result.jpg", res)
