@@ -1,9 +1,6 @@
 import os
 import cv2
 import numpy as np
-from scipy import ndimage
-from skimage.feature import peak_local_max
-from skimage.morphology import watershed
 import configparser
 
 class ObjectDetection:
@@ -185,7 +182,7 @@ class ObjectDetection:
         #res = cv2.drawContours(image, [cnt2],-1, 255, -1)
         res = cv2.circle(image_orig, (x,y-5), 2, (0, 0, 255), 2)
         cv2.imwrite(f"{out_dir}/6result.jpg", res)
-        return (x,y)
+        return (x,y-5)
 
 
     def findGolfBall(self):
@@ -199,7 +196,7 @@ class ObjectDetection:
             os.makedirs(out_dir)
 
         image_orig = self.img.copy()
-        image = image_orig[550:self.img.shape[0]-100, 300:self.img.shape[1]-300]
+        image = image_orig[500:self.img.shape[0]-100, 300:self.img.shape[1]-300]
         cv2.imwrite(f"{out_dir}/0image.jpg", image)
 
         gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
@@ -208,8 +205,16 @@ class ObjectDetection:
         #whiten = cv2.convertScaleAbs(gray, alpha=1.15, beta=1.5)
         #cv2.imwrite(f"{out_dir}/2whiten.jpg", whiten)
 
-        _, thresh = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)
+        _, thresh = cv2.threshold(gray, 230, 255, cv2.THRESH_BINARY)
         cv2.imwrite(f"{out_dir}/3tresh.jpg", thresh)
+
+        # Remove small noise by filtering using contour area
+        cnts = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+        if not cnts:
+            _, thresh = cv2.threshold(gray, 190, 255, cv2.THRESH_BINARY)
+            cv2.imwrite(f"{out_dir}/3btresh.jpg", thresh)
 
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
         opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 1)
@@ -223,11 +228,14 @@ class ObjectDetection:
             contour_np = np.asarray([[alma[0][0], alma[0][1]] for alma in c])
             x_min = np.min(contour_np[:, 0])
             x_max = np.max(contour_np[:, 0])
+            x_avg = np.mean(contour_np[:, 0])
 
             y_min = np.min(contour_np[:, 1])
             y_max = np.max(contour_np[:, 1])
-            
-            if cv2.contourArea(c) > 25 or abs(y_min - y_max) > 6:
+            y_avg = np.mean(contour_np[:, 1])
+            print(f"area:{cv2.contourArea(c)}")
+
+            if cv2.contourArea(c) > 15 or abs(y_min - y_max) > 6 or abs(x_min - x_max) > 6 or x_avg < 100:
                 cv2.drawContours(opening,[c], 0, (0,0,0), -1)
 
         cv2.imwrite(f"{out_dir}/5contour.jpg", opening)
@@ -251,7 +259,7 @@ class ObjectDetection:
 
         # Create a new mask for the result image
         if selected_contour is not None:
-            cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+550] for alma in selected_contour])
+            cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+500] for alma in selected_contour])
             x = int(np.ceil(np.mean(cnt2[:, 0])))
             y = int(np.ceil(np.mean(cnt2[:, 1])))
 

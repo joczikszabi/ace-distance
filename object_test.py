@@ -33,6 +33,12 @@ def runTest(img_path):
 	pos_ball = det.findGolfBall()
 
 	if pos_hole is not None and pos_ball is not None:
+		# displaying the coordinates on the image window
+		font = cv2.FONT_HERSHEY_SIMPLEX
+		cv2.circle(img, pos_hole, 5, (0, 255, 255), -1)
+		cv2.circle(img, pos_ball, 5, (255, 0, 0), -1)
+		cv2.line(img, pos_ball, pos_hole, (255, 0, 0), 1)
+
 		# Do distance estimation
 		dist = estimator.estimateDistance(pos_ball, pos_hole)
 
@@ -43,20 +49,16 @@ def runTest(img_path):
 			print(f"Estimated distance between ball and hole: {dist} meter(s)\n")
 
 			# displaying the coordinates on the image window
-			font = cv2.FONT_HERSHEY_SIMPLEX
-			cv2.circle(img, pos_hole, 5, (0, 255, 255), -1)
-			cv2.circle(img, pos_ball, 5, (255, 0, 0), -1)
-			cv2.line(img, pos_ball, pos_hole, (255, 0, 0), 1)
 			cv2.putText(img, f"{str(dist)}m", (int((pos_ball[0]+pos_hole[0])/2)-75, int((pos_ball[1]+pos_hole[1])/2-25)), font, 1, (255, 0, 0), 2)
-			cv2.imshow('image', img)
-
-			cv2.imwrite(f"{out_dir}/distance_estimation.jpg", img)
-			print(f"Image saved at: {out_dir}/3distance_estimation.jpg\n")
-
+		else:
+			cv2.putText(img, f"Out of grid", (int((pos_ball[0]+pos_hole[0])/2)-125, int((pos_ball[1]+pos_hole[1])/2-25)), font, 1, (255, 0, 0), 2)
+		
+		cv2.imwrite(f"{out_dir}/distance_estimation.jpg", img)
+		print(f"Image saved at: {out_dir}/3distance_estimation.jpg\n")
 
 # Cases
 estimator = DistanceEstimation()
 
-imgs = ["699-after.png", "715-after.png", "753-before.png", "763-after.png", "793-Before.png"]
+imgs = ["699-after.png", "708-after.png", "715-after.png", "753-before.png", "763-after.png", "793-Before.png"]
 for img in imgs:
 	runTest(img)
