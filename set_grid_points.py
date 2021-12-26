@@ -1,6 +1,8 @@
 import sys
 import cv2
 import json
+import argparse
+
 
 grid_points = {
     "nodes": []
@@ -18,6 +20,7 @@ def click_event(event, x, y, flags, params):
             grid_points["nodes"].append(row)
             print(row)
             row = []
+            row.append((x,y))
         else:
             row.append((x,y))
 
@@ -28,9 +31,15 @@ def click_event(event, x, y, flags, params):
         cv2.imshow('image', img)
 
 if __name__=="__main__":
+
+    parser = argparse.ArgumentParser()
+
+    #-layout LAYOUT
+    parser.add_argument("-layout", "--layout", help="Which part of the layout")
+    args = parser.parse_args()
  
     # reading the image
-    img = cv2.imread('reference2.png', 1)
+    img = cv2.imread(f'./references/layout_{args.layout}.jpg', 1)
  
     # displaying the image
     cv2.imshow('image', img)

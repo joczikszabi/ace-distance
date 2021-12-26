@@ -44,7 +44,7 @@ if __name__=="__main__":
     hole_coordinates = ()
 
     # reading the image
-    img = cv2.imread('./reference.png', 1)
+    img = cv2.imread('./699-after.PNG', 1)
  
     # displaying the image
     cv2.imshow('image', img)

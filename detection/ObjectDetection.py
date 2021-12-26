@@ -235,12 +235,19 @@ class ObjectDetection:
             y_avg = np.mean(contour_np[:, 1])
             print(f"area:{cv2.contourArea(c)}")
 
-            if cv2.contourArea(c) > 15 or abs(y_min - y_max) > 6 or abs(x_min - x_max) > 6 or x_avg < 100:
+            if cv2.contourArea(c) > 25 or abs(y_min - y_max) > 6 or abs(x_min - x_max) > 6 or x_avg < 100:
                 cv2.drawContours(opening,[c], 0, (0,0,0), -1)
 
         cv2.imwrite(f"{out_dir}/5contour.jpg", opening)
 
 
+        # --------------------------------------------------------------------
+        # brief: The algorithm chooses the contour with the largest area
+
+        # TODO: Compare the after image with the before one, substract the
+        #       similarities i.e previous golf ball, stationary noise etc. and
+        #       find the contour with the largest area
+        
         contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         selected_contour = None
         max_area = 0
@@ -255,6 +262,8 @@ class ObjectDetection:
             if area > max_area:
                 selected_contour = contour
                 max_area = area
+
+        # --------------------------------------------------------------------
         
 
         # Create a new mask for the result image
