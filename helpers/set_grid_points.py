@@ -1,8 +1,8 @@
+import os
 import sys
 import cv2
 import json
 import argparse
-
 
 grid_points = {
     "nodes": []
@@ -14,7 +14,7 @@ row = []
 def click_event(event, x, y, flags, params):
     global grid_points, row, prevPoints
 
-    # checking for left mouse clicks
+    # Check for left mouse clicks
     if event == cv2.EVENT_LBUTTONDOWN:
         if (x < prevPoints[0]):
             grid_points["nodes"].append(row)
@@ -34,26 +34,32 @@ if __name__=="__main__":
 
     parser = argparse.ArgumentParser()
 
-    #-layout LAYOUT
+    #Flags: --layout LAYOUT
     parser.add_argument("-layout", "--layout", help="Which part of the layout")
     args = parser.parse_args()
+
+    if not args.layout:
+        exit("--layout flag not specified!")
  
-    # reading the image
-    img = cv2.imread(f'./references/layout_{args.layout}.jpg', 1)
- 
-    # displaying the image
+    # Read and display specified image
+    img = cv2.imread(f'../references/layout_{args.layout}.jpg', 1)
     cv2.imshow('image', img)
  
-    # setting mouse handler for the image
-    # and calling the click_event() function
+    # Set mouse handler for the image and call the click_event() function
     cv2.setMouseCallback('image', click_event)
  
-    # wait for a key to be pressed to exit
+    # Wait for a key to be pressed to exit
     cv2.waitKey(0)
 
+    # Create directory for outputs
+    out_dir = "./tmp"
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    # Print and save grid points in 'out_dir' before closing window
     print(grid_points)
-    with open("grid.json", "w") as f:
+    with open(f"{out_dir}/grid.json", "w") as f:
         json.dump(grid_points, f)
  
-    # close the window
+    # Close window
     cv2.destroyAllWindows()

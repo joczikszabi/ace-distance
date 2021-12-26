@@ -1,3 +1,12 @@
+# Renders the grid points on the given image
+#
+# Parameters:
+# -img: Image on which the grid layout is to be rendered
+# -nodes: Grid layout configuration (stored at /config/grid.json) as a dictionry
+#
+# Returns:
+# - Image in opencv format with the grid nodes rendered on it
+
 import cv2
 
 def plot_grid(img, nodes): 

@@ -111,6 +111,9 @@ class DistanceEstimation:
 
 
     def projectCoordinate(self, coordinate, axis="x"):
+        # Projects the given coordinates on perpendicular basis vectors
+        # Ref: https://stackoverflow.com/questions/61341712/calculate-projected-point-location-x-y-on-given-line-startx-y-endx-y
+        
         adj_nodes = self.getAdjNodes(coordinate)
 
         p0 = adj_nodes[axis]["prev"]
@@ -124,7 +127,7 @@ class DistanceEstimation:
 
 
     def calcResidual(self, coordinate1, coordinate2):
-        # Calculates residual in terms of meters
+        # Calculates residuals in terms of meters
 
         # Project coordinates
         t_x, projection_x = self.projectCoordinate(coordinate1, "x")
