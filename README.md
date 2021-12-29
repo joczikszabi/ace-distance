@@ -10,7 +10,8 @@ The install script creates a new conda environement based on the configuration g
 ```
 
 # Testing
-To test out the distance estimator algorithm, run
+To test out the algorithm, go to the test folder and run
 ```bash
-python distance_test.py
+python object_detection_test.py
 ```
+After the script is finished, the results can be found under /test/results/ directory

@@ -176,4 +176,3 @@ class DistanceEstimation:
         dist = math.sqrt(a**2 + b**2)
 
         return dist
-        #return (dist, [percentages1, percentages2])

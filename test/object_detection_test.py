@@ -15,7 +15,6 @@ def runTest(img_name):
 
 	img_before = cv2.imread(img_before_path)
 	img_after = cv2.imread(img_after_path)
-	img_after_orig = img_after.copy()
 
 	# Create directory for outputs
 	out_dir = f"./results/{img_name}"
@@ -24,16 +23,17 @@ def runTest(img_name):
 
 	# Save image and grid layout
 	cv2.imwrite(f"{out_dir}/0image_orig_before.jpg", img_before)
-	cv2.imwrite(f"{out_dir}/0image_orig_after.jpg", img_after_orig)
+	cv2.imwrite(f"{out_dir}/0image_orig_after.jpg", img_after)
 
-	img_grid = plot_grid(img_after_orig, estimator.grid)
-	cv2.imwrite(f"{out_dir}/1image_grid.jpg", img_after_orig)
+	img_grid = plot_grid(img_after, estimator.grid)
+	cv2.imwrite(f"{out_dir}/1image_grid.jpg", img_after)
+
 
 	# Run distance estimation algorith
 	print(f"\nCurrent image: {img_name}")
-	det = ObjectDetection(f"./{img_after_path}")
-	pos_hole = det.findAceHole2(out_dir)
-	pos_ball = det.findGolfBall(img_before_path, out_dir)
+	det = ObjectDetection(img_before_path, img_after_path, out_dir)
+	pos_hole = det.findAceHole()
+	pos_ball = det.findGolfBall()
 
 
 	# Print golf hole position
