@@ -15,3 +15,10 @@ To test out the algorithm, go to the test folder and run
 python object_detection_test.py
 ```
 After the script is finished, the results can be found under /test/results/ directory
+
+
+# Usage
+The main algorithm can be run using estimate_distance.py. The script requires the path of two images (one before and after the shot) as arguments. An example usage can be the following:
+```
+python estimate_distance.py "test/data/708-before.png" "test/data/708-after.png"
+```
