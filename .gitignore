@@ -13,4 +13,5 @@ dataset/
 .idea/
 
 # tmp folders
+/test/results/
 **tmp/
