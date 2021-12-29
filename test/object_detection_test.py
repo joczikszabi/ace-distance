@@ -31,7 +31,7 @@ def runTest(img_name):
 
 	# Run distance estimation algorith
 	print(f"\nCurrent image: {img_name}")
-	det = ObjectDetection(img_before_path, img_after_path, out_dir)
+	det = ObjectDetection(img_before_path, img_after_path, True, out_dir)
 	pos_hole = det.findAceHole()
 	pos_ball = det.findGolfBall()
 
