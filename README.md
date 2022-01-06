@@ -10,11 +10,21 @@ The install script creates a new conda environement based on the configuration g
 ```
 
 # Testing
-To test out the algorithm, go to the test folder and run
+Pytest is used for testing the algorithm. In order to run the tests, first go to the /tests folder
 ```bash
-python object_detection_test.py
+cd tests
 ```
-After the script is finished, the results can be found under /test/results/ directory
+Next run pytest which autmatically detects and runs all test functions
+```bash
+pytest
+```
+
+To run tests in debug mode with printed messages displayed, use
+```bash
+pytest -s 
+```
+
+After the script is finished, the results can be found under /test_results
 
 
 # Usage

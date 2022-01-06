@@ -12,6 +12,8 @@ dataset/
 # IDE
 .idea/
 
-# tmp folders
-/test/results/
+# Test folders
+/tests/test_results/
+
+# Temp files and folders
 **tmp/
