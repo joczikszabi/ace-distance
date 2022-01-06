@@ -5,9 +5,11 @@
 recordings/
 dataset/
 
-# Python cache
+# Cache files/folders
+**/.pytest_cache
 **/__pycache__/
- *.pyc
+*.pyc
+
 
 # IDE
 .idea/
