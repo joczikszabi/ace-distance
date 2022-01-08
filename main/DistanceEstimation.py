@@ -158,6 +158,9 @@ class DistanceEstimation:
         return (residual_x, residual_y)
     
     def estimateDistance(self, coordinate1, coordinate2):
+        if coordinate1 is None or coordinate2 is None:
+            return None
+
         adj_nodes1 = self.getAdjNodes(coordinate1)
         adj_nodes2 = self.getAdjNodes(coordinate2)
 
@@ -173,6 +176,6 @@ class DistanceEstimation:
         a = abs(node_ind1[0] - node_ind2[0]) * self.distance_between_nodes + (residual1[0] + residual2[0])
         b = abs(node_ind1[1] - node_ind2[1]) * self.distance_between_nodes + (residual1[1] + residual2[1])
 
-        dist = math.sqrt(a**2 + b**2)
+        dist = round(math.sqrt(a**2 + b**2), 2)
 
         return dist

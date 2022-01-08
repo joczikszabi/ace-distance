@@ -1,5 +1,6 @@
 import sys
 import cv2
+import json
 import os.path
 
 from helpers.plot_grid import plot_grid
@@ -26,10 +27,27 @@ pos_ball = det.findGolfBall()
 
 # Make an instance of the DisnaceEstimation class and run the estimator algorithm
 estimator = DistanceEstimation()
+dist = estimator.estimateDistance(pos_ball, pos_hole)
 
-if pos_hole is not None and pos_ball is not None:
-	dist = estimator.estimateDistance(pos_ball, pos_hole)
-	print(dist)
+if dist:
+	# Create output directory
+	out_dir_name = os.path.splitext(os.path.basename(img_after_path))[0]
+	out_dir = f"./out/{out_dir_name}"
+	os.makedirs(out_dir)
 
-else:
-	print(None)
+	# Save result image with the distance rendered on it
+	cv2.line(img_after, pos_ball, pos_hole, (255, 0, 0), 1)
+	cv2.putText(img_after, f"{str(dist)}m", (int((pos_ball[0]+pos_hole[0])/2)-75, int((pos_ball[1]+pos_hole[1])/2-25)), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+	cv2.imwrite(f"{out_dir}/result.jpg", img_after)
+
+# Define output object
+output = {}
+output["distance"] = dist
+output["is_hole_detected"] = pos_hole is not None
+output["is_ball_detected"] = pos_ball is not None
+output["is_distance_calculated"] = dist is not None
+output["results_path"] = os.path.abspath(f"{out_dir}/result.jpg") if dist else None
+
+# Print out result
+output_json = json.dumps(output)
+print(output_json)

@@ -99,7 +99,7 @@ class TestObjectDetection():
 			cv2.imwrite(f"{out_dir}/0image_orig_before.jpg", img_before)
 			cv2.imwrite(f"{out_dir}/0image_orig_after.jpg", img_after)
 
-			img_grid = plot_grid(img_after, self.estimator.grid)
+			img_grid = plot_grid(img_before, self.estimator.grid)
 			cv2.imwrite(f"{out_dir}/1image_grid.jpg", img_after)
 
 
@@ -127,8 +127,6 @@ class TestObjectDetection():
 				# Display the coordinates on the image window
 				font = cv2.FONT_HERSHEY_SIMPLEX
 				cv2.line(img_after, pos_ball, pos_hole, (255, 0, 0), 1)
-				cv2.circle(img_after, pos_hole, 5, (0, 255, 255), -1)
-				cv2.circle(img_after, pos_ball, 5, (255, 0, 0), -1)
 
 				# Estimate distance
 				dist = self.estimator.estimateDistance(pos_ball, pos_hole)
