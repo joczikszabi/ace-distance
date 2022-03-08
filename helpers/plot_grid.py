@@ -14,7 +14,7 @@ def plot_grid(img, nodes):
 		for node in row:
 			if not node == ():
 				# Radius of circle
-				radius = 5
+				radius = 2
 				  
 				# Red color in BGR
 				color = (0, 0, 255)

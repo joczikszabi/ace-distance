@@ -2,6 +2,8 @@ import sys
 import cv2
 import json
 
+import plot_grid
+
 grid_points = {
     "nodes": []
 }
@@ -30,7 +32,7 @@ def click_event(event, x, y, flags, params):
 if __name__=="__main__":
  
     # reading the image
-    img = cv2.imread('reference.png', 1)
+    img = cv2.imread('./grid_images/01.jpeg', 1)
  
     # displaying the image
     cv2.imshow('image', img)
@@ -42,8 +44,7 @@ if __name__=="__main__":
     # wait for a key to be pressed to exit
     cv2.waitKey(0)
 
-    print(grid_points)
-    with open("grid.json", "w") as f:
+    with open("./tmp/grid_transposed.json", "w") as f:
         json.dump(grid_points, f)
  
     # close the window

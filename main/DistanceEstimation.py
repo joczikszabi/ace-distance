@@ -13,9 +13,9 @@ class DistanceEstimation:
         configParser = configparser.ConfigParser()
         configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.txt')
         configParser.read(configFilePath)
-
-        self.distance_between_nodes = configParser.getfloat('CONFIG', 'DISTANCE_BETWEEN_NODES')
-        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'grid.json')
+        grid_json_name = configParser['CONFIG']['GRID_JSON_NAME']
+        
+        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'config', f'{grid_json_name}.json')
 
         if generateDummy:
             self.generateDummyGrid()
@@ -24,9 +24,8 @@ class DistanceEstimation:
 
             
     def loadGridFromJson(self):
-        # Loads grid layout from json data file
-        #
-        # Returns: N x M numpy array containing the grid coordinates
+        # Loads grid layout from json data file and its corresponding data
+        # such as the distance between adjacent grid nodes (in meters)
 
         with open(self.grid_path, "r") as f:
             self.grid_json = json.load(f)
@@ -39,6 +38,7 @@ class DistanceEstimation:
                 grid.append(new_row)
 
             self.grid = np.array(grid, dtype=object)
+            self.distance_between_nodes = self.grid_json["distance_between_nodes"]
 
 
     def generateDummyGrid(self):
@@ -115,6 +115,8 @@ class DistanceEstimation:
         # Ref: https://stackoverflow.com/questions/61341712/calculate-projected-point-location-x-y-on-given-line-startx-y-endx-y
         
         adj_nodes = self.getAdjNodes(coordinate)
+        cv2.circle(self.img, (adj_nodes['closest'][0], adj_nodes['closest'][1]), 2, (100, 200, 0), -1)
+
 
         p0 = adj_nodes[axis]["prev"]
         p1 = adj_nodes[axis]["next"]
@@ -155,9 +157,12 @@ class DistanceEstimation:
 
         residual_x = self.distance_between_nodes * factor_x * residual_coefficient_x
         residual_y = self.distance_between_nodes * factor_y * residual_coefficient_y
+
         return (residual_x, residual_y)
     
-    def estimateDistance(self, coordinate1, coordinate2):
+    def estimateDistance(self, coordinate1, coordinate2, img):
+        self.img = img
+
         if coordinate1 is None or coordinate2 is None:
             return None
 
