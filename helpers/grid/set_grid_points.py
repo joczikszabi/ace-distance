@@ -16,11 +16,10 @@ def click_event(event, x, y, flags, params):
 
     # Check for left mouse clicks
     if event == cv2.EVENT_LBUTTONDOWN:
-        if (y < prevPoints[1]):
+        if (x < prevPoints[0]):
             grid_points["nodes"].append(row)
             print(row)
             row = []
-            row.append((x,y))
         else:
             row.append((x,y))
 
@@ -42,13 +41,9 @@ if __name__=="__main__":
         exit("--layout flag not specified!")
  
     # Read and display specified image
-    img = cv2.imread(f'./grid_images/{args.layout}.jpeg', 1)
+    img = cv2.imread(f'../references/layout_{args.layout}.jpg', 1)
     cv2.imshow('image', img)
 
-    # Load grid config
-    with open('./tmp/grid.json', "r") as f:
-        g_json = json.load(f)
-        grid_points["nodes"] = g_json["nodes"]
  
     # Set mouse handler for the image and call the click_event() function
     cv2.setMouseCallback('image', click_event)
@@ -57,7 +52,7 @@ if __name__=="__main__":
     cv2.waitKey(0)
 
     # Create directory for outputs
-    out_dir = "./tmp"
+    out_dir = "../tmp"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 

@@ -1,0 +1,28 @@
+{
+  "test_cases": [
+    {
+      "img_name": "test1",
+      "layout": "layout2",
+      "is_hole_detected": true,
+      "is_ball_detected": true
+    },
+    {
+      "img_name": "test2",
+      "layout": "layout2",
+      "is_hole_detected": true,
+      "is_ball_detected": false
+    },
+    {
+      "img_name": "test3",
+      "layout": "layout2",
+      "is_hole_detected": true,
+      "is_ball_detected": true
+    },
+    {
+      "img_name": "test4",
+      "layout": "layout2",
+      "is_hole_detected": true,
+      "is_ball_detected": true
+    }
+  ]
+}

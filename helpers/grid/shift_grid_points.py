@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-with open('../config/grid_new.json', "r") as f:
+with open('../../layouts/layout2/grid.json', "r") as f:
     grid_json = json.load(f)
     grid = []
 

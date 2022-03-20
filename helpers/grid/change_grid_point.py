@@ -32,7 +32,7 @@ def click_event(event, x, y, flags, params):
 if __name__=="__main__":
  
     # reading the image
-    img = cv2.imread('./grid_images/01.jpeg', 1)
+    img = cv2.imread('../../layouts/layout2/imgs/01.jpeg', 1)
  
     # displaying the image
     cv2.imshow('image', img)
@@ -44,7 +44,7 @@ if __name__=="__main__":
     # wait for a key to be pressed to exit
     cv2.waitKey(0)
 
-    with open("./tmp/grid_transposed.json", "w") as f:
+    with open("../tmp/grid_transposed.json", "w") as f:
         json.dump(grid_points, f)
  
     # close the window

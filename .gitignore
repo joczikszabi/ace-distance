@@ -15,7 +15,7 @@ dataset/
 .idea/
 
 # Test folders
-/tests/test_results/
+**/test_out/
 
 # Temp files and folders
 **tmp/

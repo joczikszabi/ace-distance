@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-with open('./tmp/grid.json', "r") as f:
+with open('./grid.json', "r") as f:
     grid_json = json.load(f)
     grid = []
 
@@ -22,5 +22,5 @@ grid_points = {
 
 print(grid)
 
-with open(f"./tmp/grid_transposed.json", "w") as f:
+with open(f"./grid_transposed.json", "w") as f:
     json.dump(grid_points, f)

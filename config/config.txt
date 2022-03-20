@@ -1,2 +1,5 @@
-[CONFIG]
-GRID_JSON_NAME = grid_shifted
+[PROGRAM]
+VERSION = 1.0
+
+[GRID]
+LAYOUT_NAME = layout2
