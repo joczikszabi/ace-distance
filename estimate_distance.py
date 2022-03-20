@@ -21,13 +21,13 @@ else:
 	exit(f"Image (after) not found on path: {img_after_path}")
 
 # Make an instance of the ObjectDetection classes and run the detection algorithm
-det = ObjectDetection(img_before_path, img_after_path, debug_mode=False)
+det = ObjectDetection(img_before_path, img_after_path, debug_mode=True, out_dir=f"out/alma")
 pos_hole = det.findAceHole()
 pos_ball = det.findGolfBall()
 
 # Make an instance of the DisnaceEstimation class and run the estimator algorithm
 estimator = DistanceEstimation()
-dist = estimator.estimateDistance(pos_ball, pos_hole)
+dist = estimator.estimateDistance(pos_ball, pos_hole, img_after)
 
 if dist:
 	# Create output directory

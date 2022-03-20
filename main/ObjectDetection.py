@@ -1,5 +1,6 @@
 import os
 import cv2
+import math
 import numpy as np
 import configparser
 
@@ -34,24 +35,23 @@ class ObjectDetection:
     def findAceHole(self):
         # Apply opencv masks for hole detection
         img = self.img_after.copy()
-        image_cropped = img[485:img.shape[0]-100, 300:img.shape[1]-300]
+        #image_cropped = img[485:img.shape[0]-100, 300:img.shape[1]-300]
+        image_cropped = img[380:679, 0:1920]
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/0image_cropped.jpg", image_cropped)
 
         cv_gray = cv2.cvtColor(image_cropped, cv2.COLOR_BGR2GRAY)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/1gray.jpg", cv_gray)
 
-        element = np.ones((5, 5))
+        element = np.ones((8, 8))
         cv_erode = cv2.erode(cv_gray, element)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/2erode.jpg", cv_erode)
 
-        cv_thresh = cv2.adaptiveThreshold(cv_erode, 255, 
-            cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 51, 9)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/3tresh.jpg", cv_thresh)
+        # Get contours
+        cv_thresh = self.getContoursForHole(cv_erode)
+        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/3_contours.jpg", cv_thresh)
 
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,10))
-        cv_opening = cv2.morphologyEx(cv_thresh, cv2.MORPH_OPEN, kernel, iterations = 2)
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,2))
-        cv_opening = cv2.morphologyEx(cv_opening, cv2.MORPH_OPEN, kernel, iterations = 2)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+        cv_opening = cv2.morphologyEx(cv_thresh, cv2.MORPH_OPEN, kernel, iterations=2)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/4morph.jpg", cv_opening)
 
         # Remove small noise by filtering using contour area
@@ -59,7 +59,7 @@ class ObjectDetection:
         cnts = cnts[0] if len(cnts) == 2 else cnts[1]
 
         for c in cnts:
-            if cv2.contourArea(c) < 50 or cv2.contourArea(c) > 1000:
+            if cv2.contourArea(c) < 50 or cv2.contourArea(c) > 500:
                 cv2.drawContours(cv_opening, [c], 0, (0,0,0), -1)
 
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/5contour.jpg", cv_opening)
@@ -72,11 +72,18 @@ class ObjectDetection:
             contour_np = np.asarray([[alma[0][0], alma[0][1]] for alma in contour])
             area = cv2.contourArea(contour)
 
+            x_min = np.min(contour_np[:, 0])
+            x_max = np.max(contour_np[:, 0])
             x_avg = np.mean(contour_np[:, 0])
+
+            y_min = np.min(contour_np[:, 1])
             y_max = np.max(contour_np[:, 1])
 
             # Too close to edge of the image, it cannot be the hole
-            if (x_avg < 100 or y_max < 15):
+            img_height = 679 - 380
+            height_width_ratio = (y_max - y_min) / (x_max - x_min)
+            print(height_width_ratio)
+            if (x_avg < 100 or x_avg > (1920 - 100) or y_max < 15 or y_min > img_height - 15 or height_width_ratio < 2):
                 if area > max_area:
                     continue
 
@@ -87,12 +94,12 @@ class ObjectDetection:
         if selected_contour is None:
             return None
 
-        cnt2 = np.asarray([[alma[0][0]+300, alma[0][1]+485] for alma in selected_contour])
+        cnt2 = np.asarray([[alma[0][0], alma[0][1]+380] for alma in selected_contour])
         x = int(np.ceil(np.mean(cnt2[:, 0])))
         y = max(cnt2[:, 1])
 
         # Draw the contour on the new mask and perform the bitwise operation
-        pos_ace_hole = (x, y-5)
+        pos_ace_hole = (x-5, y-5)
         img_result = cv2.circle(img, pos_ace_hole, 2, (0, 0, 255), 2)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/6result.jpg", img_result)
 
@@ -101,11 +108,11 @@ class ObjectDetection:
 
     def findGolfBall(self):
         img_after = self.img_after.copy()
-        img_after_cropped = img_after[500:img_after.shape[0]-100, 300:img_after.shape[1]-300]
+        img_after_cropped = img_after[380:679, 0:1920]
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/0image_after_cropped.jpg", img_after_cropped)
 
         img_before = self.img_before.copy()
-        img_before_cropped = img_before[500:img_before.shape[0]-100, 300:img_before.shape[1]-300]
+        img_before_cropped = img_before[380:679, 0:1920]
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/0image_before_cropped.jpg", img_after_cropped)
 
 
@@ -121,8 +128,8 @@ class ObjectDetection:
 
 
         # Apply morphology for cleaning up noise
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,1))
-        cv_opening = cv2.morphologyEx(contours, cv2.MORPH_OPEN, kernel, iterations = 1)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))
+        cv_opening = cv2.morphologyEx(contours, cv2.MORPH_OPEN, kernel, iterations=1)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/4morph.jpg", cv_opening)
 
         # Remove small noise by removing contours with too large or small area
@@ -139,7 +146,7 @@ class ObjectDetection:
             y_max = np.max(contour_np[:, 1])
             y_avg = np.mean(contour_np[:, 1])
 
-            if cv2.contourArea(c) > 25 or abs(y_min - y_max) > 6 or abs(x_min - x_max) > 6 or x_avg < 100:
+            if cv2.contourArea(c) > 25 or abs(y_min - y_max) > 10 or abs(x_min - x_max) > 10 or x_avg < 100:
                 cv2.drawContours(cv_opening, [c], 0, (0,0,0), -1)
 
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/5contour.jpg", cv_opening)
@@ -157,11 +164,8 @@ class ObjectDetection:
         max_area = 0
 
         for _, contour in enumerate(contours):
-            contour_np = np.asarray([[c[0][0], c[0][1]] for c in contour])
-            area = cv2.contourArea(contour)
-
-            x_avg = np.mean(contour_np[:, 0])
-            y_avg = np.mean(contour_np[:, 1])
+            _, radius = cv2.minEnclosingCircle(contour)
+            area = math.pi * radius
 
             if area > max_area:
                 selected_contour = contour
@@ -172,7 +176,7 @@ class ObjectDetection:
 
         # Create a new mask for the result image
         if selected_contour is not None:
-            cnt2 = np.asarray([[c[0][0]+300, c[0][1]+500] for c in selected_contour])
+            cnt2 = np.asarray([[c[0][0], c[0][1]+380] for c in selected_contour])
             x = int(np.ceil(np.mean(cnt2[:, 0])))
             y = int(np.ceil(np.mean(cnt2[:, 1])))
 
@@ -186,12 +190,11 @@ class ObjectDetection:
 
         return None
 
-
     def getContoursForBall(self, img):
         cv_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/1gray.jpg", cv_gray)
 
-        _, cv_thresh = cv2.threshold(cv_gray, 230, 255, cv2.THRESH_BINARY)
+        _, cv_thresh = cv2.threshold(cv_gray, 180, 255, cv2.THRESH_BINARY)
 
         # Remove small noise by filtering using contour area
         cnts = cv2.findContours(cv_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -200,6 +203,19 @@ class ObjectDetection:
         # If previous threshold detection didn't find any contours, try to lower
         # the treshold range
         if not cnts:
-            _, cv_thresh = cv2.threshold(cv_gray, 190, 255, cv2.THRESH_BINARY)
+            _, cv_thresh = cv2.threshold(cv_gray, 130, 255, cv2.THRESH_BINARY)
+
+        return cv_thresh
+
+    def getContoursForHole(self, img):
+        _, cv_thresh = cv2.threshold(img, 35, 255, cv2.THRESH_BINARY_INV)
+
+        # Remove small noise by filtering using contour area
+        cnts = cv2.findContours(cv_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+        # If previous threshold detection didn't find any contours, try to lower
+        # the treshold range
+
 
         return cv_thresh
