@@ -89,9 +89,8 @@ class DistanceEstimation:
             else:
                 prev_node_y = np.asarray(self.grid[closest_node_ind[0] - 1, closest_node_ind[1]])
                 next_node_y = closest_node
-        except:
-            print('Position out of grid layout!')
-            return None
+        except IndexError:
+            raise ValueError('Position out of grid!')
 
         adj_nodes = {
             "x": {

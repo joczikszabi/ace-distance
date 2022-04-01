@@ -5,6 +5,7 @@ import pytest
 
 import estimate_distance
 from main.DistanceEstimation import DistanceEstimation
+from main.ObjectDetection import ObjectDetection
 
 
 def get_testcases():
@@ -61,9 +62,14 @@ class TestObjectDetection:
         img_before_path = os.path.join(layout_path, f'{testcase["img_name"]}-before.png')
         img_after_path = os.path.join(layout_path, f'{testcase["img_name"]}-after.png')
         output_path = os.path.join(self.out_dir, testcase["layout"], testcase["img_name"])
-        output = estimate_distance.main(img_before_path, img_after_path, output_path, testcase['layout'])
 
-        assert output['is_hole_detected'] == testcase["is_hole_detected"]
+        det = ObjectDetection(img_before_path, img_after_path,
+                              debug_mode=True,
+                              out_dir=output_path,
+                              grid_layout=testcase['layout'])
+        pos_hole = det.findAceHole()
+
+        assert (pos_hole is not None) == testcase["is_hole_detected"]
 
     @pytest.mark.parametrize("testcase", get_testcases())
     def test_ball_detection(self, testcase):
@@ -72,9 +78,14 @@ class TestObjectDetection:
         img_before_path = os.path.join(layout_path, f'{testcase["img_name"]}-before.png')
         img_after_path = os.path.join(layout_path, f'{testcase["img_name"]}-after.png')
         output_path = os.path.join(self.out_dir, testcase["layout"], testcase["img_name"])
-        output = estimate_distance.main(img_before_path, img_after_path, output_path, testcase['layout'])
 
-        assert output['is_ball_detected'] == testcase["is_ball_detected"]
+        det = ObjectDetection(img_before_path, img_after_path,
+                              debug_mode=True,
+                              out_dir=output_path,
+                              grid_layout=testcase['layout'])
+        pos_ball = det.findGolfBall()
+
+        assert (pos_ball is not None) == testcase["is_ball_detected"]
 
     @pytest.mark.parametrize("testcase", get_testcases())
     def test_result_exported(self, testcase):
@@ -87,10 +98,12 @@ class TestObjectDetection:
         img_before_path = os.path.join(layout_path, f'{testcase["img_name"]}-before.png')
         img_after_path = os.path.join(layout_path, f'{testcase["img_name"]}-after.png')
         output_path = os.path.join(self.out_dir, testcase["layout"], testcase["img_name"])
-        output = estimate_distance.main(img_before_path, img_after_path, output_path, testcase['layout'])
+        estimate_distance.main(img_before_path, img_after_path, output_path, testcase['layout'])
 
         if testcase['is_hole_detected'] and testcase['is_ball_detected']:
-            assert os.path.isfile(f'{self.out_dir}/{testcase["layout"]}/{testcase["img_name"]}/result.jpg') # Check if image is exported
-            assert os.path.isfile(f'{self.out_dir}/{testcase["layout"]}/{testcase["img_name"]}/results.json') # Check if json file is exported
+            assert os.path.isfile(
+                f'{self.out_dir}/{testcase["layout"]}/{testcase["img_name"]}/result.jpg')  # Check if image is exported
+            assert os.path.isfile(
+                f'{self.out_dir}/{testcase["layout"]}/{testcase["img_name"]}/results.json')  # Check if json file is exported
 
         print('---------------------------------')
