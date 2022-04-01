@@ -2,12 +2,19 @@ import sys
 import cv2
 import json
 import os.path
-
+import configparser
 from main.ObjectDetection import ObjectDetection
 from main.DistanceEstimation import DistanceEstimation
 
 
 def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
+    # Load config data from config file
+    configParser = loadConfig()
+
+    if grid_layout == '':
+        # Load config data from config file
+        grid_layout = configParser['GRID']['LAYOUT_NAME']
+
     if not os.path.isfile(img_before_path):
         exit(f"Image (before) not found on path: {img_before_path}")
 
@@ -43,6 +50,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
 
     # Define output object
     output = {
+        "version": configParser['PROGRAM']['VERSION'],
         "distance": dist,
         "is_hole_detected": pos_hole is not None,
         "is_ball_detected": pos_ball is not None,
@@ -61,6 +69,15 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
         json.dump(output, f)
 
     return output
+
+
+def loadConfig():
+    # Load config data from config file
+    configParser = configparser.ConfigParser()
+    configFilePath = os.path.join(os.path.dirname(__file__), 'config', 'config.txt')
+    configParser.read(configFilePath)
+
+    return configParser
 
 
 if __name__ == "__main__":
