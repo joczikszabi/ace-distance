@@ -11,7 +11,7 @@ class ObjectDetection:
 
         # Load config data from config file
         configParser = configparser.ConfigParser()
-        configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.txt')
+        configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.ini')
         configParser.read(configFilePath)
 
         if grid_layout == '':

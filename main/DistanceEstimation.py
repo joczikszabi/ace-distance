@@ -13,7 +13,7 @@ class DistanceEstimation:
         if grid_layout == '':
             # Load config data from config file
             configParser = configparser.ConfigParser()
-            configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.txt')
+            configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.ini')
             configParser.read(configFilePath)
             grid_layout = configParser['GRID']['LAYOUT_NAME']
 

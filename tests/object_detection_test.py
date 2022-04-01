@@ -15,7 +15,7 @@ def get_testcases():
     # - img_name: Name of the image
     # - is_hole_visible: Is the Ace hole visible on the image?
     # - is_ball_visible: Is the golf ball visible on the image?
-    test_data_dir = './test_data/object_detection_test'
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'test_data', 'object_detection_test')
     test_cases = []
     for subdir, dirs, files in os.walk(test_data_dir):
         for dir in dirs:
@@ -31,9 +31,9 @@ def get_testcases():
 
 
 class TestObjectDetection:
-    test_dir = './test_out'
-    out_dir = f'{test_dir}/object_detection_test'
-    test_data_dir = './test_data/object_detection_test'
+    test_dir = os.path.join(os.path.dirname(__file__), 'test_out')
+    out_dir = os.path.join(test_dir, 'object_detection_test')
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'test_data', 'object_detection_test')
     estimator = DistanceEstimation()
 
     # Setup method

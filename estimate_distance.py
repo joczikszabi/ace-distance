@@ -78,7 +78,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
 def loadConfig():
     # Load config data from config file
     configParser = configparser.ConfigParser()
-    configFilePath = os.path.join(os.path.dirname(__file__), 'config', 'config.txt')
+    configFilePath = os.path.join(os.path.dirname(__file__), 'config', 'config.ini')
     configParser.read(configFilePath)
 
     return configParser
