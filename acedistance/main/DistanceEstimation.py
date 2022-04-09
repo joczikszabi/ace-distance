@@ -1,9 +1,9 @@
-import os
-import cv2
+import configparser
 import json
 import math
+import os
+
 import numpy as np
-import configparser
 from scipy import spatial
 
 

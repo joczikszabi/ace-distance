@@ -1,8 +1,6 @@
-import sys
-import cv2
 import json
 
-import plot_grid
+import cv2
 
 grid_points = {
     "nodes": []
@@ -32,7 +30,7 @@ def click_event(event, x, y, flags, params):
 if __name__=="__main__":
  
     # reading the image
-    img = cv2.imread('../../layouts/layout2/imgs/01.jpeg', 1)
+    img = cv2.imread('../../out/layouts/layout2/imgs/01.jpeg', 1)
  
     # displaying the image
     cv2.imshow('image', img)

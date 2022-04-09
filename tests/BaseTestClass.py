@@ -1,5 +1,5 @@
 import os
-from main.ObjectDetection import ObjectDetection
+from acedistance.main.ObjectDetection import ObjectDetection
 
 
 class BaseTestClass:
@@ -8,13 +8,7 @@ class BaseTestClass:
         self.out_dir = os.path.join(os.path.dirname(__file__), 'test_out', testcase_name)
         self.data_dir = os.path.join(os.path.dirname(__file__), 'test_data', testcase_name)
 
-    def outDir(self):
-        return self.out_dir
-
-    def dataDir(self):
-        return self.data_dir
-
-    def detectionObject(self, testcase):
+    def get_detection_object(self, testcase):
         img_before_path = os.path.join(self.data_dir, f'{testcase["img_name"]}-before.png')
         img_after_path = os.path.join(self.data_dir, f'{testcase["img_name"]}-after.png')
         output_path = os.path.join(self.out_dir, testcase['layout'], testcase['img_name'])

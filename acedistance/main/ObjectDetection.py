@@ -1,9 +1,10 @@
-import os
-import cv2
-import math
-import json
-import numpy as np
 import configparser
+import json
+import math
+import os
+
+import cv2
+import numpy as np
 
 
 class ObjectDetection:

@@ -3,8 +3,8 @@ import cv2
 import json
 import os.path
 import configparser
-from main.ObjectDetection import ObjectDetection
-from main.DistanceEstimation import DistanceEstimation
+from acedistance.main.ObjectDetection import ObjectDetection
+from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
 def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode=False):
@@ -15,7 +15,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode
     # Create output directory if not supplied
     image_name = os.path.splitext(os.path.basename(img_after_path))[0]
     if out_dir == '':
-        out_dir = f"./out/{image_name}"
+        out_dir = f"acedistance/out/{image_name}"
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
@@ -82,7 +82,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode
 def loadConfig():
     # Load config data from config file
     configParser = configparser.ConfigParser()
-    configFilePath = os.path.join(os.path.dirname(__file__), 'config', 'config.ini')
+    configFilePath = os.path.join(os.path.dirname(__file__), 'acedistance/config', 'config.ini')
     configParser.read(configFilePath)
 
     return configParser

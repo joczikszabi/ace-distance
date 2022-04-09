@@ -2,13 +2,13 @@ import os
 import pytest
 
 from tests.BaseTestClass import BaseTestClass
-from tests.get_testcases import get_testcases
+from tests.helpers.get_testcases import get_testcases
 import estimate_distance
 
 basecls = BaseTestClass(testcase_name='entry_script_test')
 
 
-@pytest.mark.parametrize('testcase', get_testcases(basecls.dataDir()))
+@pytest.mark.parametrize('testcase', get_testcases(basecls.data_dir))
 def test_entry_script_returned_data(testcase):
     output_path = basecls.get_output_path(testcase['layout'], testcase['img_name'])
     actual_result = estimate_distance.main(img_before_path=basecls.get_img_before_path(testcase['img_name']),
@@ -30,7 +30,7 @@ def test_entry_script_returned_data(testcase):
     assert actual_result['error'].startswith(testcase['error'])
 
 
-@pytest.mark.parametrize('testcase', get_testcases(basecls.dataDir()))
+@pytest.mark.parametrize('testcase', get_testcases(basecls.data_dir))
 def test_results_exported(testcase):
     output_path = basecls.get_output_path(testcase['layout'], testcase['img_name'])
     estimate_distance.main(img_before_path=basecls.get_img_before_path(testcase['img_name']),
