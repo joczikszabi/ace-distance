@@ -1,0 +1,15 @@
+image: continuumio/miniconda3
+
+before_script:
+    - apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+    - python --version  # For debugging
+    - conda env create -f environment.yml
+    - conda init bash
+    - source ~/.bashrc
+    - conda activate ace-distance
+
+run tests:
+    script:
+        - python -m pytest
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'

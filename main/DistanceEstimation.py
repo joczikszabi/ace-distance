@@ -6,23 +6,24 @@ import numpy as np
 import configparser
 from scipy import spatial
 
-class DistanceEstimation:
-    def __init__(self, generateDummy = False):
-        
-        # Load config data from config file
-        configParser = configparser.ConfigParser()
-        configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.txt')
-        configParser.read(configFilePath)
-        grid_json_name = configParser['CONFIG']['GRID_JSON_NAME']
-        
-        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'config', f'{grid_json_name}.json')
 
-        if generateDummy:
+class DistanceEstimation:
+    def __init__(self, generate_dummy=False, grid_layout=''):
+
+        if grid_layout == '':
+            # Load config data from config file
+            configParser = configparser.ConfigParser()
+            configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.ini')
+            configParser.read(configFilePath)
+            grid_layout = configParser['GRID']['LAYOUT_NAME']
+
+        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{grid_layout}', 'grid.json')
+
+        if generate_dummy:
             self.generateDummyGrid()
         else:
             self.loadGridFromJson()
 
-            
     def loadGridFromJson(self):
         # Loads grid layout from json data file and its corresponding data
         # such as the distance between adjacent grid nodes (in meters)
@@ -40,7 +41,6 @@ class DistanceEstimation:
             self.grid = np.array(grid, dtype=object)
             self.distance_between_nodes = self.grid_json["distance_between_nodes"]
 
-
     def generateDummyGrid(self):
         xvalues = np.linspace(0.0, 1920.0, num=20)
         yvalues = np.linspace(0.0, 1080.0, num=10)
@@ -49,7 +49,6 @@ class DistanceEstimation:
         coords = [(a1, b1) for a, b in zip(xx, yy) for a1, b1 in zip(a, b)]
 
         self.grid = coords
-
 
     def getClosestNode(self, coordinate):
         # Finds closest node in the grid to the coordinate(x, y)
@@ -60,14 +59,13 @@ class DistanceEstimation:
         # Returns:
         # Closest node to the given coordinate
 
-
-        grid_flatten = [(node[0][0], node[0][1]) if node[0] != () else (9999, 9999) for node in self.grid.reshape(-1,1)]
+        grid_flatten = [(node[0][0], node[0][1]) if node[0] != () else (9999, 9999) for node in
+                        self.grid.reshape(-1, 1)]
         dist_ind = spatial.KDTree(grid_flatten).query(coordinate)
 
         # Convert back index to 2d array index format
         ind = (math.floor(dist_ind[1] / self.grid.shape[1]), dist_ind[1] % self.grid.shape[1])
-        return (dist_ind[0], ind)
-
+        return dist_ind[0], ind
 
     def getAdjNodes(self, coordinate):
         dist, closest_node_ind = self.getClosestNode(coordinate)
@@ -91,10 +89,8 @@ class DistanceEstimation:
             else:
                 prev_node_y = np.asarray(self.grid[closest_node_ind[0] - 1, closest_node_ind[1]])
                 next_node_y = closest_node
-        except:
-            print('Position out of grid layout!')
-            return None
-
+        except IndexError:
+            raise ValueError('Position out of grid!')
 
         adj_nodes = {
             "x": {
@@ -109,14 +105,12 @@ class DistanceEstimation:
         }
         return adj_nodes
 
-
     def projectCoordinate(self, coordinate, axis="x"):
         # Projects the given coordinates on perpendicular basis vectors
         # Ref: https://stackoverflow.com/questions/61341712/calculate-projected-point-location-x-y-on-given-line-startx-y-endx-y
-        
-        adj_nodes = self.getAdjNodes(coordinate)
-        cv2.circle(self.img, (adj_nodes['closest'][0], adj_nodes['closest'][1]), 2, (100, 200, 0), -1)
 
+        adj_nodes = self.getAdjNodes(coordinate)
+        # cv2.circle(self.img, (adj_nodes['closest'][0], adj_nodes['closest'][1]), 2, (100, 200, 0), -1)
 
         p0 = adj_nodes[axis]["prev"]
         p1 = adj_nodes[axis]["next"]
@@ -125,8 +119,7 @@ class DistanceEstimation:
         t = np.sum((coordinate - p0) * (p1 - p0)) / l2
 
         projection = p0 + t * (p1 - p0)
-        return (t, projection)
-
+        return t, projection
 
     def calcResidual(self, coordinate1, coordinate2):
         # Calculates residuals in terms of meters
@@ -143,23 +136,23 @@ class DistanceEstimation:
 
         min_x = min(adj_nodes_1["closest"][0], adj_nodes_2["closest"][0])
         max_x = max(adj_nodes_1["closest"][0], adj_nodes_2["closest"][0])
-        if (min_x <= projection_x[0] <= max_x):
+        if min_x <= projection_x[0] <= max_x:
             residual_coefficient_x = -1
-        else: 
+        else:
             residual_coefficient_x = 1
 
         min_y = min(adj_nodes_1["closest"][1], adj_nodes_2["closest"][1])
         max_y = max(adj_nodes_1["closest"][1], adj_nodes_2["closest"][1])
-        if (min_y <= projection_y[1] <= max_y):
+        if min_y <= projection_y[1] <= max_y:
             residual_coefficient_y = -1
-        else: 
+        else:
             residual_coefficient_y = 1
 
         residual_x = self.distance_between_nodes * factor_x * residual_coefficient_x
         residual_y = self.distance_between_nodes * factor_y * residual_coefficient_y
 
-        return (residual_x, residual_y)
-    
+        return residual_x, residual_y
+
     def estimateDistance(self, coordinate1, coordinate2, img):
         self.img = img
 
@@ -181,6 +174,6 @@ class DistanceEstimation:
         a = abs(node_ind1[0] - node_ind2[0]) * self.distance_between_nodes + (residual1[0] + residual2[0])
         b = abs(node_ind1[1] - node_ind2[1]) * self.distance_between_nodes + (residual1[1] + residual2[1])
 
-        dist = round(math.sqrt(a**2 + b**2), 2)
+        dist = round(math.sqrt(a ** 2 + b ** 2), 2)
 
         return dist

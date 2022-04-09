@@ -1,2 +1,0 @@
-[CONFIG]
-GRID_JSON_NAME = grid_shifted
