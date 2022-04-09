@@ -40,7 +40,8 @@ if __name__ == "__main__":
     hole_coordinates = ()
 
     # Read image
-    img_path = "../layouts/layout2/references/ref1.png"
+    #img_path = "./test_data/object_detection_test/layout2/test7-after.png"
+    img_path = "../layouts/layout2/imgs/01.png"
     img = cv2.imread(img_path, 1)
 
     # Display image and grid layout

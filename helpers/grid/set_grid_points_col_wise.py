@@ -18,9 +18,7 @@ def click_event(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDOWN:
         if (y < prevPoints[1]):
             grid_points["nodes"].append(row)
-            print(row)
             row = []
-            row.append((x,y))
         else:
             row.append((x,y))
 
@@ -35,14 +33,15 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
 
     #Flags: --layout LAYOUT
-    parser.add_argument("-layout", "--layout", help="Which part of the layout")
+    parser.add_argument("-layout", "--layout", help="Which layout to choose")
+    parser.add_argument("-image", "--image", help="Which image to choose")
     args = parser.parse_args()
 
     if not args.layout:
         exit("--layout flag not specified!")
  
     # Read and display specified image
-    img = cv2.imread(f'./grid_images/{args.layout}.png', 1)
+    img = cv2.imread(f'../../layouts/{args.layout}/imgs/{args.image}.png', 1)
     cv2.imshow('image', img)
 
     # Load grid config

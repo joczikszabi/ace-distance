@@ -84,7 +84,7 @@ class ObjectDetection:
         cnts = cnts[0] if len(cnts) == 2 else cnts[1]
 
         for c in cnts:
-            if cv2.contourArea(c) < 50 or cv2.contourArea(c) > 500:
+            if cv2.contourArea(c) < 100 or cv2.contourArea(c) > 600:
                 cv2.drawContours(cv_opening, [c], 0, (0, 0, 0), -1)
 
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/5contour.jpg", cv_opening)
