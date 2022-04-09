@@ -1,6 +1,48 @@
 {
   "test_cases": [
     {
+      "img_name": "699",
+      "layout": "layout1",
+      "is_hole_detected": true,
+      "is_ball_detected": false
+    },
+    {
+      "img_name": "708",
+      "layout": "layout1",
+      "is_hole_detected": true,
+      "is_ball_detected": true
+    },
+    {
+      "img_name": "715",
+      "layout": "layout1",
+      "is_hole_detected": true,
+      "is_ball_detected": true
+    },
+    {
+      "img_name": "753",
+      "layout": "layout1",
+      "is_hole_detected": true,
+      "is_ball_detected": false
+    },
+    {
+      "img_name": "763",
+      "layout": "layout1",
+      "is_hole_detected": true,
+      "is_ball_detected": true
+    },
+    {
+      "img_name": "768",
+      "layout": "layout1",
+      "is_hole_detected": true,
+      "is_ball_detected": true
+    },
+    {
+      "img_name": "770",
+      "layout": "layout1",
+      "is_hole_detected": true,
+      "is_ball_detected": true
+    },
+    {
       "img_name": "test1",
       "layout": "layout2",
       "is_hole_detected": true,

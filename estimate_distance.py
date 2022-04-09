@@ -7,10 +7,18 @@ from main.ObjectDetection import ObjectDetection
 from main.DistanceEstimation import DistanceEstimation
 
 
-def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
+def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode=False):
     # Load config data from config file
     configParser = loadConfig()
     version = configParser['PROGRAM']['VERSION']
+
+    # Create output directory if not supplied
+    image_name = os.path.splitext(os.path.basename(img_after_path))[0]
+    if out_dir == '':
+        out_dir = f"./out/{image_name}"
+
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
 
     if grid_layout == '':
         # Load config data from config file
@@ -20,6 +28,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
         output = defaultOutput(version,
                                img_before_path,
                                img_after_path,
+                               grid_layout,
                                err_msg=f'Image (before) not found on path: {img_before_path}')
         emitAndSaveOutput(output, out_dir)
         return output
@@ -30,21 +39,14 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
         output = defaultOutput(version,
                                img_before_path,
                                img_after_path,
+                               grid_layout,
                                err_msg=f'Image (after) not found on path: {img_after_path}')
         emitAndSaveOutput(output, out_dir)
         return output
 
-    # Create output directory if not supplied
-    image_name = os.path.splitext(os.path.basename(img_after_path))[0]
-    if out_dir == '':
-        out_dir = f"./out/{image_name}"
-
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
     # Run object detection
     pos_hole, pos_ball = runObjectDetection(img_before_path, img_after_path,
-                                            debug_mode=True, out_dir=out_dir, grid_layout=grid_layout)
+                                            debug_mode=debug_mode, out_dir=out_dir, grid_layout=grid_layout)
 
     # Run distance estimation
     try:
@@ -53,6 +55,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
         output = defaultOutput(version,
                                img_before_path,
                                img_after_path,
+                               grid_layout,
                                err_msg="Error occurred in estimateDistance")
         emitAndSaveOutput(output, out_dir)
         return output
@@ -66,6 +69,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout=''):
     output = defaultOutput(version,
                            img_before_path,
                            img_after_path,
+                           grid_layout,
                            distance=dist,
                            is_hole_detected=pos_hole is not None,
                            is_ball_detected=pos_ball is not None,
@@ -102,12 +106,13 @@ def runDistanceEstimation(img_after, pos_ball, pos_hole, grid_layout):
     return dist
 
 
-def defaultOutput(version, img_before_path, img_after_path, distance=None,
-                  is_hole_detected=None, is_ball_detected=None,
+def defaultOutput(version, img_before_path, img_after_path, layout_name,
+                  distance=None, is_hole_detected=None, is_ball_detected=None,
                   results_path=None, err_msg=''):
     output = {
         "version": version,
         "distance": distance,
+        "layout_name": layout_name,
         "is_hole_detected": is_hole_detected,
         "is_ball_detected": is_ball_detected,
         "results_path": results_path,
@@ -138,7 +143,9 @@ def saveResultImg(img, pos_ball, pos_hole, dist, out_dir):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 4:
+    if len(sys.argv) > 5:
+        main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], bool(sys.argv[5]))
+    elif len(sys.argv) > 4:
         main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     elif len(sys.argv) > 3:
         main(sys.argv[1], sys.argv[2], sys.argv[3])
