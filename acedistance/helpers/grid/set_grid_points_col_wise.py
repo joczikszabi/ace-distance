@@ -1,8 +1,8 @@
-import argparse
-import json
 import os
-
 import cv2
+import json
+import argparse
+from linear_regression import linear_regression
 
 grid_points = {
     "nodes": []
@@ -17,8 +17,21 @@ def click_event(event, x, y, flags, params):
 
     # Check for left mouse clicks
     if event == cv2.EVENT_LBUTTONDOWN:
-        if (y < prevPoints[1]):
-            grid_points["nodes"].append(row)
+        if y < prevPoints[1]:
+            X = [node[0] for node in row if node != []]
+            Y = [node[1] for node in row if node != []]
+
+            regression_data = linear_regression(X, Y)
+
+            # Fill out the missing nodes with empty ones
+            if len(regression_data) != 9:
+                regression_data.insert(0, [])
+
+            for i in range(0, 9 - len(regression_data)):
+                regression_data.append([])
+
+            grid_points["nodes"].append(regression_data)
+            print(row)
             row = []
         else:
             row.append((x, y))
@@ -31,7 +44,6 @@ def click_event(event, x, y, flags, params):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
 
     # Flags: --layout LAYOUT
