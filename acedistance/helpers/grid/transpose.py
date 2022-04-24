@@ -1,7 +1,8 @@
 import json
+
 import numpy as np
 
-with open('./grid.json', "r") as f:
+with open('grid.json', "r") as f:
     grid_json = json.load(f)
     grid = []
 

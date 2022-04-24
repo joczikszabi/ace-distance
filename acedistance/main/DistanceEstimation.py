@@ -1,10 +1,9 @@
 import os
-import cv2
 import json
 import math
 import numpy as np
-import configparser
 from scipy import spatial
+from acedistance.helpers.utilities.load_config import loadConfig
 
 
 class DistanceEstimation:
@@ -12,9 +11,7 @@ class DistanceEstimation:
 
         if grid_layout == '':
             # Load config data from config file
-            configParser = configparser.ConfigParser()
-            configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.ini')
-            configParser.read(configFilePath)
+            configParser = loadConfig()
             grid_layout = configParser['GRID']['LAYOUT_NAME']
 
         self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{grid_layout}', 'grid.json')

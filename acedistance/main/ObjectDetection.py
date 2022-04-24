@@ -1,16 +1,16 @@
 import os
 import cv2
-import math
 import json
+import math
 import numpy as np
-import configparser
+from acedistance.helpers.utilities.load_config import loadConfig
 
 
 class ObjectDetection:
     def __init__(self, img_before_path, img_after_path, debug_mode=False, out_dir="", grid_layout=''):
 
         # Load config data from config file
-        configParser = configparser.ConfigParser()
+        configParser = loadConfig()
         configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.ini')
         configParser.read(configFilePath)
 

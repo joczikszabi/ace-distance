@@ -1,10 +1,11 @@
+import os
 import sys
 import cv2
 
-# For top level import
-sys.path.append("..")
-from main.DistanceEstimation import DistanceEstimation
-from helpers.grid.plot_grid import plot_grid
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), '..'))
+
+from acedistance.helpers.utilities.plot_grid import plot_grid
+from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
 def click_event(event, x, y, flags, params):
@@ -15,8 +16,6 @@ def click_event(event, x, y, flags, params):
 
         if not hole_coordinates:
             hole_coordinates = (x, y)
-
-            font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.circle(img, (x, y), 5, (255, 0, 0), -1)
             cv2.imshow('image', img)
 
@@ -40,8 +39,8 @@ if __name__ == "__main__":
     hole_coordinates = ()
 
     # Read image
-    #img_path = "./test_data/object_detection_test/layout2/test7-after.png"
-    img_path = "../layouts/layout2/imgs/01.png"
+    # img_path = "./test_data/object_detection_test/layout2/test7-after.png"
+    img_path = "../acedistance/layouts/layout2/imgs/01.png"
     img = cv2.imread(img_path, 1)
 
     # Display image and grid layout

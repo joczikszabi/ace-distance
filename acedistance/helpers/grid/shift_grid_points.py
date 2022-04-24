@@ -1,4 +1,5 @@
 import json
+
 import numpy as np
 
 with open('../../layouts/layout2/grid.json', "r") as f:

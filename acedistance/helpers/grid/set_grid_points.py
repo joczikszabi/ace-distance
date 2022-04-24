@@ -1,9 +1,8 @@
-import os
-import cv2
-import json
 import argparse
-from linear_regression import linear_regression
+import json
+import os
 
+import cv2
 
 grid_points = {
     "nodes": []
@@ -18,20 +17,8 @@ def click_event(event, x, y, flags, params):
 
     # Check for left mouse clicks
     if event == cv2.EVENT_LBUTTONDOWN:
-        if y < prevPoints[1]:
-            X = [node[0] for node in row if node != []]
-            Y = [node[1] for node in row if node != []]
-
-            regression_data = linear_regression(X, Y)
-
-            # Fill out the missing nodes with empty ones
-            if len(regression_data) != 9:
-                regression_data.insert(0, [])
-
-            for i in range(0, 9 - len(regression_data)):
-                regression_data.append([])
-
-            grid_points["nodes"].append(regression_data)
+        if (x < prevPoints[0]):
+            grid_points["nodes"].append(row)
             print(row)
             row = []
         else:
@@ -45,24 +32,19 @@ def click_event(event, x, y, flags, params):
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
 
     # Flags: --layout LAYOUT
-    parser.add_argument("-layout", "--layout", help="Which layout to choose")
-    parser.add_argument("-image", "--image", help="Which image to choose")
+    parser.add_argument("-layout", "--layout", help="Which part of the layout")
     args = parser.parse_args()
 
     if not args.layout:
         exit("--layout flag not specified!")
 
     # Read and display specified image
-    img = cv2.imread(f'../../layouts/{args.layout}/imgs/{args.image}.png', 1)
+    img = cv2.imread(f'../references/layout_{args.layout}.jpg', 1)
     cv2.imshow('image', img)
-
-    # Load grid config
-    with open('./grid.json', "r") as f:
-        g_json = json.load(f)
-        grid_points["nodes"] = g_json["nodes"]
 
     # Set mouse handler for the image and call the click_event() function
     cv2.setMouseCallback('image', click_event)
@@ -71,7 +53,7 @@ if __name__ == "__main__":
     cv2.waitKey(0)
 
     # Create directory for outputs
-    out_dir = "./"
+    out_dir = "../tmp"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
