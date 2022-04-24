@@ -2,7 +2,9 @@ import sys
 import cv2
 import json
 import os.path
-import configparser
+import argparse
+
+from acedistance.helpers.utilities.load_config import loadConfig
 from acedistance.main.ObjectDetection import ObjectDetection
 from acedistance.main.DistanceEstimation import DistanceEstimation
 
@@ -15,7 +17,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode
     # Create output directory if not supplied
     image_name = os.path.splitext(os.path.basename(img_after_path))[0]
     if out_dir == '':
-        out_dir = f"acedistance/out/{image_name}"
+        out_dir = f"out/{image_name}"
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
@@ -29,6 +31,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode
                                img_before_path,
                                img_after_path,
                                grid_layout,
+                               results_path=out_dir,
                                err_msg=f'Image (before) not found on path: {img_before_path}')
         emitAndSaveOutput(output, out_dir)
         return output
@@ -40,6 +43,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode
                                img_before_path,
                                img_after_path,
                                grid_layout,
+                               results_path=out_dir,
                                err_msg=f'Image (after) not found on path: {img_after_path}')
         emitAndSaveOutput(output, out_dir)
         return output
@@ -56,6 +60,7 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode
                                img_before_path,
                                img_after_path,
                                grid_layout,
+                               results_path=out_dir,
                                err_msg="Error occurred in estimateDistance")
         emitAndSaveOutput(output, out_dir)
         return output
@@ -73,19 +78,10 @@ def main(img_before_path, img_after_path, out_dir='', grid_layout='', debug_mode
                            distance=dist,
                            is_hole_detected=pos_hole is not None,
                            is_ball_detected=pos_ball is not None,
-                           results_path=os.path.abspath(f"{out_dir}/result.jpg") if dist else None)
+                           results_path=os.path.abspath(f"{out_dir}/result.jpg") if dist else out_dir)
 
     emitAndSaveOutput(output, out_dir)
     return output
-
-
-def loadConfig():
-    # Load config data from config file
-    configParser = configparser.ConfigParser()
-    configFilePath = os.path.join(os.path.dirname(__file__), 'acedistance/config', 'config.ini')
-    configParser.read(configFilePath)
-
-    return configParser
 
 
 def runObjectDetection(img_before_path, img_after_path, debug_mode, out_dir, grid_layout):
@@ -143,6 +139,7 @@ def saveResultImg(img, pos_ball, pos_hole, dist, out_dir):
 
 
 if __name__ == "__main__":
+    '''
     if len(sys.argv) > 5:
         main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], bool(sys.argv[5]))
     elif len(sys.argv) > 4:
@@ -151,3 +148,39 @@ if __name__ == "__main__":
         main(sys.argv[1], sys.argv[2], sys.argv[3])
     else:
         main(sys.argv[1], sys.argv[2])
+    '''
+
+    my_parser = argparse.ArgumentParser(description='This is the AceChallenge distance estimator entry script.')
+
+    my_parser.add_argument('-imgb',
+                           '--img_before_path',
+                           type=str,
+                           help='Path to the image taken before the AceChallenge score',
+                           required=True)
+
+    my_parser.add_argument('-imga',
+                           '--img_after_path',
+                           type=str,
+                           help='Path to the image taken after the AceChallenge score',
+                           required=True)
+
+    my_parser.add_argument('-out',
+                           '--out_dir',
+                           type=str,
+                           help='Path to the image taken before the AceChallenge score',
+                           required=False)
+
+    my_parser.add_argument('-grid',
+                           '--grid_layout',
+                           type=str,
+                           help='Path to the image taken before the AceChallenge score',
+                           required=False)
+
+    my_parser.add_argument('-debug',
+                           '--debug_mode',
+                           type=str,
+                           help='Path to the image taken before the AceChallenge score',
+                           required=False)
+
+    # Execute the parse_args() method
+    args = my_parser.parse_args()

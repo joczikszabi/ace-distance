@@ -30,7 +30,7 @@ def click_event(event, x, y, flags, params):
 if __name__=="__main__":
  
     # reading the image
-    img = cv2.imread('../../out/layouts/layout2/imgs/01.jpeg', 1)
+    img = cv2.imread('../../../out/layouts/layout2/imgs/01.jpeg', 1)
  
     # displaying the image
     cv2.imshow('image', img)

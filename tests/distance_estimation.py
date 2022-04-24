@@ -1,6 +1,11 @@
+import os
+import sys
 import cv2
 
-from helpers.utilities import plot_grid
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), '..'))
+
+from acedistance.helpers.utilities.plot_grid import plot_grid
+from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
 def click_event(event, x, y, flags, params):
@@ -34,7 +39,7 @@ if __name__ == "__main__":
     hole_coordinates = ()
 
     # Read image
-    #img_path = "./test_data/object_detection_test/layout2/test7-after.png"
+    # img_path = "./test_data/object_detection_test/layout2/test7-after.png"
     img_path = "../acedistance/layouts/layout2/imgs/01.png"
     img = cv2.imread(img_path, 1)
 
