@@ -12,7 +12,6 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
     # Load config data from config file
     configParser = loadConfig()
     version = configParser['PROGRAM']['VERSION']
-    print(grid_layout is None)
 
     # Set default optional argument values if not set
     image_name = os.path.splitext(os.path.basename(img_after_path))[0]
@@ -20,7 +19,6 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
         out_dir = f"{configParser['PROGRAM']['DEFAULT_OUTDIR']}/{image_name}"
     if grid_layout is None:
         grid_layout = configParser['GRID']['LAYOUT_NAME']
-        print(grid_layout)
     if debug_mode is None:
         debug_mode = bool(configParser['PROGRAM']['DEBUG_MODE'])
 
@@ -163,9 +161,13 @@ if __name__ == "__main__":
                              'debugging purposes. False by default.',
                         required=False)
 
+    configParser = loadConfig()
+    parser.add_argument('-v', '--version', action='version',
+                        version='acedistance {version}'.format(version=configParser['PROGRAM']['VERSION']))
+
     # Execute the parse_args() method
     args = parser.parse_args()
-    print(args)
+
     main(img_before_path=args.img_before_path,
          img_after_path=args.img_after_path,
          out_dir=args.out_dir if hasattr(args, 'out_dir') else None,
