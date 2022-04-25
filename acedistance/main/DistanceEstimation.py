@@ -7,6 +7,10 @@ from scipy import spatial
 from acedistance.helpers.utilities.load_config import loadConfig
 
 
+def distance(co1, co2):
+    return math.sqrt(pow(abs(co1[0] - co2[0]), 2) + pow(abs(co1[1] - co2[1]), 2))
+
+
 class DistanceEstimation:
     def __init__(self, generate_dummy=False, grid_layout=''):
 
@@ -48,22 +52,32 @@ class DistanceEstimation:
 
         self.grid = coords
 
-    def getClosestNode(self, coordinate):
+    def getClosestNode(self, coordinate, debug=False):
         # Finds closest node in the grid to the coordinate(x, y)
         #
         # Input parameters:
-        # coordinate(x, y): Touple where x and y coordinates are in pixels
+        # coordinate(x, y): Tuple where x and y coordinates are in pixels
         #
         # Returns:
         # Closest node to the given coordinate
 
-        grid_flatten = [(node[0][0], node[0][1]) if node[0] != () else (9999, 9999) for node in
-                        self.grid.reshape(-1, 1)]
+        grid_flatten = [(node[0], node[1]) if node != () else (9999, 9999) for row in
+                        self.grid.reshape(-1, 1) for node in row]
         dist_ind = spatial.KDTree(grid_flatten).query(coordinate)
 
+        nearest = min(grid_flatten, key=lambda x: distance(x, coordinate))
+        dist_ind = grid_flatten.index(nearest)
+        if debug: print(nearest)
+        if debug: print(dist_ind)
+
+        cv2.putText(self.img, "cn", (int(nearest[0]), int(nearest[1])),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        cv2.circle(self.img, tuple(nearest), 2, (255, 0, 255), -1)
+
         # Convert back index to 2d array index format
-        ind = (math.floor(dist_ind[1] / self.grid.shape[1]), dist_ind[1] % self.grid.shape[1])
-        return dist_ind[0], ind
+        ind = (math.floor(dist_ind / self.grid.shape[1]), dist_ind % self.grid.shape[1])
+        if debug: print(ind)
+        return dist_ind, ind
 
     def getAdjNodes(self, coordinate):
         dist, closest_node_ind = self.getClosestNode(coordinate)
@@ -90,7 +104,7 @@ class DistanceEstimation:
         except IndexError:
             raise ValueError('Position out of grid!')
 
-
+        '''
         cv2.putText(self.img, "px", (int(prev_node_x[0]), int(prev_node_x[1])),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
         cv2.circle(self.img, tuple(prev_node_x), 2, (0, 255, 255), -1)
@@ -106,10 +120,13 @@ class DistanceEstimation:
         cv2.putText(self.img, "ny", (int(next_node_y[0]), int(next_node_y[1])),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
         cv2.circle(self.img, tuple(next_node_y), 2, (255, 0, 0), -1)
+        
 
         cv2.putText(self.img, "cn", (int(closest_node[0]), int(closest_node[1])),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
         cv2.circle(self.img, tuple(closest_node), 2, (255, 0, 255), -1)
+        
+        '''
 
         adj_nodes = {
             "x": {
@@ -185,7 +202,7 @@ class DistanceEstimation:
         if adj_nodes1 is None or adj_nodes2 is None:
             return None
 
-        dist1, node_ind1 = self.getClosestNode(coordinate1)
+        dist1, node_ind1 = self.getClosestNode(coordinate1, debug=True)
         dist2, node_ind2 = self.getClosestNode(coordinate2)
 
         residual1 = self.calcResidual(coordinate1, coordinate2)
