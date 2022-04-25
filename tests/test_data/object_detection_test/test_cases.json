@@ -44,55 +44,55 @@
     },
     {
       "img_name": "test1",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true
     },
     {
       "img_name": "test2",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": false
     },
     {
       "img_name": "test3",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true
     },
     {
       "img_name": "test5",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": false
     },
     {
       "img_name": "test6",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": false
     },
     {
       "img_name": "test7",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true
     },
     {
       "img_name": "test8",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true
     },
     {
       "img_name": "test9",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true
     },
     {
       "img_name": "test10",
-      "layout": "layout2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true
     }

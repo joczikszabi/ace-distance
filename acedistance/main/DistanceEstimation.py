@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import cv2
 import numpy as np
 from scipy import spatial
 from acedistance.helpers.utilities.load_config import loadConfig
@@ -89,6 +90,27 @@ class DistanceEstimation:
         except IndexError:
             raise ValueError('Position out of grid!')
 
+
+        cv2.putText(self.img, "px", (int(prev_node_x[0]), int(prev_node_x[1])),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+        cv2.circle(self.img, tuple(prev_node_x), 2, (0, 255, 255), -1)
+
+        cv2.putText(self.img, "nx", (int(next_node_x[0]), int(next_node_x[1])),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2)
+        cv2.circle(self.img, tuple(next_node_x), 2, (255, 255, 0), -1)
+
+        cv2.putText(self.img, "py", (int(prev_node_y[0]), int(prev_node_y[1])),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.circle(self.img, tuple(prev_node_y), 2, (0, 255, 0), -1)
+
+        cv2.putText(self.img, "ny", (int(next_node_y[0]), int(next_node_y[1])),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        cv2.circle(self.img, tuple(next_node_y), 2, (255, 0, 0), -1)
+
+        cv2.putText(self.img, "cn", (int(closest_node[0]), int(closest_node[1])),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        cv2.circle(self.img, tuple(closest_node), 2, (255, 0, 255), -1)
+
         adj_nodes = {
             "x": {
                 "prev": prev_node_x,
@@ -116,6 +138,7 @@ class DistanceEstimation:
         t = np.sum((coordinate - p0) * (p1 - p0)) / l2
 
         projection = p0 + t * (p1 - p0)
+        cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
         return t, projection
 
     def calcResidual(self, coordinate1, coordinate2):

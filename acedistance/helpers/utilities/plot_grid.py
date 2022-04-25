@@ -8,17 +8,22 @@
 # - Image in opencv format with the grid nodes rendered on it
 
 import cv2
+from random import randint
 
 
 def plot_grid(img, nodes):
     for row in nodes:
+        r = randint(0, 255)
+        g = randint(0, 255)
+        b = randint(0, 255)
+
         for node in row:
             if not node == ():
                 # Radius of circle
-                radius = 2
+                radius = 4
 
                 # Red color in BGR
-                color = (0, 0, 255)
+                color = (r, g, b)
 
                 # Line thickness of -1 px
                 thickness = -1

@@ -87,6 +87,7 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
                            is_hole_detected=pos_hole is not None,
                            is_ball_detected=pos_ball is not None,
                            results_path=os.path.abspath(f"{out_dir}/result.jpg") if dist else out_dir)
+
     emitAndSaveOutput(output, out_dir)
 
     return output
@@ -129,7 +130,7 @@ def saveResultImg(img, pos_ball, pos_hole, dist, out_dir):
 
 
 if __name__ == "__main__":
-
+    
     # Add argparser arguments
     parser = argparse.ArgumentParser(description='This is the AceChallenge distance estimator entry script.')
     parser.add_argument('img_before_path',
@@ -170,6 +171,6 @@ if __name__ == "__main__":
 
     main(img_before_path=args.img_before_path,
          img_after_path=args.img_after_path,
-         out_dir=args.out_dir if hasattr(args, 'out_dir') else None,
+         out_dir=args.output if hasattr(args, 'output') else None,
          grid_layout=args.grid_layout if hasattr(args, 'grid_layout') else None,
          debug_mode=args.debug_mode if hasattr(args, 'debug_mode') else None)

@@ -1,5 +1,6 @@
 {
 	"name": "layout1",
+	"description": "First layout in Amsterdam used for MVP",
 	"mask": {
 		"hole": {
 		  "crop": {
