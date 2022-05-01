@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     # Read image
     # img_path = "./test_data/object_detection_test/layout2/test7-after.png"
-    img_path = "../acedistance/layouts/layout2/imgs/01.png"
+    img_path = "../acedistance/layouts/f4db010a-5dba-4708-b758-24aaad97a48e/imgs/01.png"
     img = cv2.imread(img_path, 1)
 
     # Display image and grid layout

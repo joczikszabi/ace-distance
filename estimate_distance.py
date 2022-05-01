@@ -9,18 +9,16 @@ from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
 def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_mode=None):
+
     # Load config data from config file
     configParser = loadConfig()
     version = configParser['PROGRAM']['VERSION']
 
-    # Set default optional argument values if not set
-    image_name = os.path.splitext(os.path.basename(img_after_path))[0]
-    if out_dir is None:
-        out_dir = f"{configParser['PROGRAM']['DEFAULT_OUTDIR']}/{image_name}"
-    if grid_layout is None:
-        grid_layout = configParser['GRID']['LAYOUT_NAME']
-    if debug_mode is None:
-        debug_mode = bool(configParser['PROGRAM']['DEBUG_MODE'])
+    # Set default optional argument values
+    out_dir, grid_layout, debug_mode = getOptionalArguments(img_after_path=img_after_path,
+                                                            out_dir=out_dir,
+                                                            grid_layout=grid_layout,
+                                                            debug_mode=debug_mode)
 
     # Create out directory if does not exist
     if not os.path.exists(out_dir):
@@ -87,9 +85,26 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
                            is_hole_detected=pos_hole is not None,
                            is_ball_detected=pos_ball is not None,
                            results_path=os.path.abspath(f"{out_dir}/result.jpg") if dist else out_dir)
+
     emitAndSaveOutput(output, out_dir)
 
     return output
+
+
+def getOptionalArguments(img_after_path, out_dir, grid_layout, debug_mode):
+    # Set default optional argument values if not set
+    image_name = os.path.splitext(os.path.basename(img_after_path))[0]
+
+    if out_dir is None:
+        out_dir = f"{configParser['PROGRAM']['DEFAULT_OUTDIR']}/{image_name}"
+
+    if grid_layout is None:
+        grid_layout = configParser['GRID']['LAYOUT_NAME']
+
+    if debug_mode is None:
+        debug_mode = bool(configParser['PROGRAM']['DEBUG_MODE'])
+
+    return out_dir, grid_layout, debug_mode
 
 
 def defaultOutput(version, img_before_path, img_after_path, layout_name,
@@ -170,6 +185,6 @@ if __name__ == "__main__":
 
     main(img_before_path=args.img_before_path,
          img_after_path=args.img_after_path,
-         out_dir=args.out_dir if hasattr(args, 'out_dir') else None,
+         out_dir=args.output if hasattr(args, 'output') else None,
          grid_layout=args.grid_layout if hasattr(args, 'grid_layout') else None,
          debug_mode=args.debug_mode if hasattr(args, 'debug_mode') else None)

@@ -18,6 +18,7 @@ def click_event(event, x, y, flags, params):
     # Check for left mouse clicks
     if event == cv2.EVENT_LBUTTONDOWN:
         if y < prevPoints[1]:
+            '''
             X = [node[0] for node in row if node != []]
             Y = [node[1] for node in row if node != []]
 
@@ -31,7 +32,16 @@ def click_event(event, x, y, flags, params):
                 regression_data.append([])
 
             grid_points["nodes"].append(regression_data)
+            grid_points["nodes"].append(row)
+            '''
+            # Fill out the missing nodes with empty ones
+            if len(row) != 9:
+                row.insert(0, [])
+
+            for i in range(0, 9 - len(row)):
+                row.append([])
             print(row)
+            grid_points["nodes"].append(row)
             row = []
         else:
             row.append((x, y))
@@ -59,9 +69,9 @@ if __name__ == "__main__":
     cv2.imshow('image', img)
 
     # Load grid config
-    with open('grid.json', "r") as f:
+    with open('grid.json', 'r') as f:
         g_json = json.load(f)
-        grid_points["nodes"] = g_json["nodes"]
+        grid_points['nodes'] = g_json['nodes']
 
     # Set mouse handler for the image and call the click_event() function
     cv2.setMouseCallback('image', click_event)
@@ -69,14 +79,9 @@ if __name__ == "__main__":
     # Wait for a key to be pressed to exit
     cv2.waitKey(0)
 
-    # Create directory for outputs
-    out_dir = "/"
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
     # Print and save grid points in 'out_dir' before closing window
     print(grid_points)
-    with open(f"{out_dir}/grid.json", "w") as f:
+    with open('grid.json', 'w') as f:
         json.dump(grid_points, f)
 
     # Close window
