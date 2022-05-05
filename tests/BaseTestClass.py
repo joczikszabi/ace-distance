@@ -16,7 +16,7 @@ class BaseTestClass:
         det = ObjectDetection(img_before_path, img_after_path,
                               debug_mode=True,
                               out_dir=output_path,
-                              grid_layout=testcase['layout'])
+                              layout_name=testcase['layout'])
         return det
 
     def get_img_before_path(self, img_name):

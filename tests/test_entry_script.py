@@ -14,7 +14,7 @@ def test_entry_script_returned_data(testcase):
     actual_result = estimate_distance.main(img_before_path=basecls.get_img_before_path(testcase['img_name']),
                                            img_after_path=basecls.get_img_after_path(testcase['img_name']),
                                            out_dir=output_path,
-                                           grid_layout=testcase['layout'],
+                                           layout_name=testcase['layout'],
                                            debug_mode=False)
 
     assert actual_result['is_hole_detected'] == testcase['is_hole_detected']
@@ -36,7 +36,7 @@ def test_results_exported(testcase):
     estimate_distance.main(img_before_path=basecls.get_img_before_path(testcase['img_name']),
                            img_after_path=basecls.get_img_after_path(testcase['img_name']),
                            out_dir=output_path,
-                           grid_layout=testcase['layout'],
+                           layout_name=testcase['layout'],
                            debug_mode=False)
 
     if testcase['is_hole_detected'] and testcase['is_ball_detected']:

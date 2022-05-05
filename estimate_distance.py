@@ -3,22 +3,25 @@ import json
 import os.path
 import argparse
 
-from acedistance.helpers.utilities.load_config import loadConfig
+from helpers.load import loadConfig
+from acedistance.main.Grid import GridLayout
 from acedistance.main.ObjectDetection import ObjectDetection
 from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
-def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_mode=None):
+def main(img_before_path, img_after_path, out_dir=None, layout_name=None, debug_mode=None):
 
     # Load config data from config file
     configParser = loadConfig()
     version = configParser['PROGRAM']['VERSION']
 
     # Set default optional argument values
-    out_dir, grid_layout, debug_mode = getOptionalArguments(img_after_path=img_after_path,
+    out_dir, layout_name, debug_mode = getOptionalArguments(img_after_path=img_after_path,
                                                             out_dir=out_dir,
-                                                            grid_layout=grid_layout,
+                                                            layout_name=layout_name,
                                                             debug_mode=debug_mode)
+
+    gl = GridLayout(layout_name)
 
     # Create out directory if does not exist
     if not os.path.exists(out_dir):
@@ -29,7 +32,7 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
         output = defaultOutput(version=version,
                                img_before_path=img_before_path,
                                img_after_path=img_after_path,
-                               layout_name=grid_layout,
+                               layout_name=layout_name,
                                results_path=out_dir,
                                err_msg=f'Image (before) not found on path: {img_before_path}')
         emitAndSaveOutput(output, out_dir)
@@ -39,7 +42,7 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
         output = defaultOutput(version=version,
                                img_before_path=img_before_path,
                                img_after_path=img_after_path,
-                               layout_name=grid_layout,
+                               layout_name=layout_name,
                                results_path=out_dir,
                                err_msg=f'Image (after) not found on path: {img_after_path}')
         emitAndSaveOutput(output, out_dir)
@@ -51,14 +54,14 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
                           img_after_path=img_after_path,
                           debug_mode=debug_mode,
                           out_dir=out_dir,
-                          grid_layout=grid_layout)
+                          layout_name=layout_name)
     pos_hole = det.findAceHole()
     pos_ball = det.findGolfBall()
 
     # DISTANCE ESTIMATION
     # Make an instance of the DistanceEstimation class and run the estimator algorithm
     try:
-        estimator = DistanceEstimation(grid_layout=grid_layout)
+        estimator = DistanceEstimation(layout_name=layout_name)
         img_after = cv2.imread(img_after_path)
         dist = estimator.estimateDistance(pos_ball, pos_hole, img_after)
 
@@ -66,7 +69,7 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
         output = defaultOutput(version=version,
                                img_before_path=img_before_path,
                                img_after_path=img_after_path,
-                               layout_name=grid_layout,
+                               layout_name=layout_name,
                                results_path=out_dir,
                                err_msg="Error occurred in estimateDistance")
         emitAndSaveOutput(output, out_dir)
@@ -80,7 +83,7 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
     output = defaultOutput(version=version,
                            img_before_path=img_before_path,
                            img_after_path=img_after_path,
-                           layout_name=grid_layout,
+                           layout_name=layout_name,
                            distance=dist,
                            is_hole_detected=pos_hole is not None,
                            is_ball_detected=pos_ball is not None,
@@ -91,20 +94,20 @@ def main(img_before_path, img_after_path, out_dir=None, grid_layout=None, debug_
     return output
 
 
-def getOptionalArguments(img_after_path, out_dir, grid_layout, debug_mode):
+def getOptionalArguments(img_after_path, out_dir, layout_name, debug_mode):
     # Set default optional argument values if not set
     image_name = os.path.splitext(os.path.basename(img_after_path))[0]
 
     if out_dir is None:
         out_dir = f"{configParser['PROGRAM']['DEFAULT_OUTDIR']}/{image_name}"
 
-    if grid_layout is None:
-        grid_layout = configParser['GRID']['LAYOUT_NAME']
+    if layout_name is None:
+        layout_name = configParser['GRID']['LAYOUT_NAME']
 
     if debug_mode is None:
         debug_mode = bool(configParser['PROGRAM']['DEBUG_MODE'])
 
-    return out_dir, grid_layout, debug_mode
+    return out_dir, layout_name, debug_mode
 
 
 def defaultOutput(version, img_before_path, img_after_path, layout_name,
@@ -162,8 +165,8 @@ if __name__ == "__main__":
                              './out/[img-after name] in the current directory.',
                         required=False)
 
-    parser.add_argument('-g',
-                        '--grid_layout',
+    parser.add_argument('-l',
+                        '--layout_name',
                         type=str,
                         help='(Optional) Name of the grid layout that will be used for the distance estimation. By '
                              'default, the specified layout in config.ini is used.',
@@ -186,5 +189,5 @@ if __name__ == "__main__":
     main(img_before_path=args.img_before_path,
          img_after_path=args.img_after_path,
          out_dir=args.output if hasattr(args, 'output') else None,
-         grid_layout=args.grid_layout if hasattr(args, 'grid_layout') else None,
+         layout_name=args.layout_name if hasattr(args, 'layout_name') else None,
          debug_mode=args.debug_mode if hasattr(args, 'debug_mode') else None)

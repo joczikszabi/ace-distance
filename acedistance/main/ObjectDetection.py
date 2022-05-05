@@ -3,22 +3,22 @@ import cv2
 import json
 import math
 import numpy as np
-from acedistance.helpers.utilities.load_config import loadConfig
+from helpers.load import loadConfig
 
 
 class ObjectDetection:
-    def __init__(self, img_before_path, img_after_path, debug_mode=False, out_dir="", grid_layout=''):
+    def __init__(self, img_before_path, img_after_path, debug_mode=False, out_dir="", layout_name=''):
 
         # Load config data from config file
         configParser = loadConfig()
         configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.ini')
         configParser.read(configFilePath)
 
-        if grid_layout == '':
+        if layout_name == '':
             # Load config data from config file
-            grid_layout = configParser['GRID']['LAYOUT_NAME']
+            layout_name = configParser['GRID']['LAYOUT_NAME']
 
-        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{grid_layout}', 'grid.json')
+        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{layout_name}', 'grid.json')
         self.loadGridFromJson()
 
         # Set paths and data

@@ -4,22 +4,22 @@ import math
 import cv2
 import numpy as np
 from scipy import spatial
-from acedistance.helpers.utilities.load_config import loadConfig
+from acedistance.helpers.load import loadConfig
 
 
 def distance(co1, co2):
-    return math.sqrt(pow(abs(co1[0] - co2[0]), 2) + pow(abs(co1[1] - co2[1]), 2))
+    return math.sqrt(pow(abs(co1[0] - co2[0]) * 10, 2) + pow(abs(co1[1] - co2[1]) * 10, 2))
 
 
 class DistanceEstimation:
-    def __init__(self, generate_dummy=False, grid_layout=''):
+    def __init__(self, generate_dummy=False, layout_name=''):
 
-        if grid_layout == '':
+        if layout_name == '':
             # Load config data from config file
             configParser = loadConfig()
-            grid_layout = configParser['GRID']['LAYOUT_NAME']
+            layout_name = configParser['GRID']['LAYOUT_NAME']
 
-        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{grid_layout}', 'grid.json')
+        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{layout_name}', 'grid.json')
 
         if generate_dummy:
             self.generateDummyGrid()
@@ -63,21 +63,56 @@ class DistanceEstimation:
 
         grid_flatten = [(node[0], node[1]) if node != () else (9999, 9999) for row in
                         self.grid.reshape(-1, 1) for node in row]
-        dist_ind = spatial.KDTree(grid_flatten).query(coordinate)
-
+        #dist, dist_ind = spatial.KDTree(grid_flatten).query(coordinate)
         nearest = min(grid_flatten, key=lambda x: distance(x, coordinate))
+        dist = distance(nearest, coordinate)
         dist_ind = grid_flatten.index(nearest)
-        if debug: print(nearest)
-        if debug: print(dist_ind)
-
-        cv2.putText(self.img, "cn", (int(nearest[0]), int(nearest[1])),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
-        cv2.circle(self.img, tuple(nearest), 2, (255, 0, 255), -1)
+        node = grid_flatten[dist_ind]
 
         # Convert back index to 2d array index format
         ind = (math.floor(dist_ind / self.grid.shape[1]), dist_ind % self.grid.shape[1])
-        if debug: print(ind)
-        return dist_ind, ind
+
+        #cv2.putText(self.img, "cn", (int(node[0]) - 10, int(node[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        #cv2.circle(self.img, (int(node[0]), int(node[1])), 2, (255, 0, 255), -1)
+        return dist, ind
+
+    def findClosestNode(self, nodes, coordinate):
+        closest_node_idx_local = spatial.KDTree(nodes).query(coordinate)[1]
+        closest_node = nodes[closest_node_idx_local]
+        closest_node_idx_global = [(ix, iy) for ix, row in enumerate(self.grid) for iy, node in enumerate(row) if node == closest_node]
+
+        return closest_node, closest_node_idx_global
+
+    def getEnclosingNodes(self, coordinate):
+        grid_flatten = [(node[0], node[1]) for row in self.grid.reshape(-1, 1) for node in row if node != ()]
+
+        # Find top left node
+        nodes_TL = [node for node in grid_flatten if node[0] < coordinate[0] and node[1] < coordinate[1]]
+        closest_node_TL, closest_node_idx_TL = self.findClosestNode(nodes_TL, coordinate)
+        cv2.putText(self.img, "TL", (int(closest_node_TL[0]-10), int(closest_node_TL[1])-10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        cv2.circle(self.img, (int(closest_node_TL[0]), int(closest_node_TL[1])), 2, (255, 0, 255), -1)
+
+        # Find top right node
+        nodes_TR = [node for node in grid_flatten if node[0] > coordinate[0] and node[1] < coordinate[1]]
+        closest_node_TR, closest_node_idx_TR = self.findClosestNode(nodes_TR, coordinate)
+        cv2.putText(self.img, "TR", (int(closest_node_TR[0] + 10), int(closest_node_TR[1]) - 10),
+                   cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        cv2.circle(self.img, (int(closest_node_TR[0]), int(closest_node_TR[1])), 2, (255, 0, 255), -1)
+
+        # Find bottom right node
+        nodes_BR = [node for node in grid_flatten if node[0] > coordinate[0] and node[1] > coordinate[1]]
+        closest_node_BR, closest_node_idx_BR = self.findClosestNode(nodes_BR, coordinate)
+        cv2.putText(self.img, "BR", (int(closest_node_BR[0] + 10), int(closest_node_BR[1]) + 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        cv2.circle(self.img, (int(closest_node_BR[0]), int(closest_node_BR[1])), 2, (255, 0, 255), -1)
+
+        # Find bottom left node
+        nodes_BL = [node for node in grid_flatten if node[0] < coordinate[0] and node[1] > coordinate[1]]
+        closest_node_BL, closest_node_idx_BL = self.findClosestNode(nodes_BL, coordinate)
+        cv2.putText(self.img, "BL", (int(closest_node_BL[0] - 10), int(closest_node_BL[1]) + 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 255), 2)
+        cv2.circle(self.img, (int(closest_node_BL[0]), int(closest_node_BL[1])), 2, (255, 0, 255), -1)
 
     def getAdjNodes(self, coordinate):
         dist, closest_node_ind = self.getClosestNode(coordinate)
@@ -195,6 +230,8 @@ class DistanceEstimation:
 
         if coordinate1 is None or coordinate2 is None:
             return None
+
+        self.getEnclosingNodes(coordinate1)
 
         adj_nodes1 = self.getAdjNodes(coordinate1)
         adj_nodes2 = self.getAdjNodes(coordinate2)

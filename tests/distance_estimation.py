@@ -4,7 +4,7 @@ import cv2
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '..'))
 
-from acedistance.helpers.utilities.plot_grid import plot_grid
+from acedistance.helpers.plot import plot_grid
 from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
