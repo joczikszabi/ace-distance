@@ -21,7 +21,8 @@ def main(img_before_path, img_after_path, out_dir=None, layout_name=None, debug_
                                                             layout_name=layout_name,
                                                             debug_mode=debug_mode)
 
-    gl = GridLayout(layout_name)
+    # Set layout
+    gridlayout = GridLayout(layout_name)
 
     # Create out directory if does not exist
     if not os.path.exists(out_dir):
@@ -61,7 +62,7 @@ def main(img_before_path, img_after_path, out_dir=None, layout_name=None, debug_
     # DISTANCE ESTIMATION
     # Make an instance of the DistanceEstimation class and run the estimator algorithm
     try:
-        estimator = DistanceEstimation(layout_name=layout_name)
+        estimator = DistanceEstimation(gridlayout=gridlayout)
         img_after = cv2.imread(img_after_path)
         dist = estimator.estimateDistance(pos_ball, pos_hole, img_after)
 

@@ -1,6 +1,8 @@
 import os
 import sys
 import cv2
+from helpers.load import loadConfig
+from acedistance.main.Grid import GridLayout
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '..'))
 
@@ -34,8 +36,12 @@ def click_event(event, x, y, flags, params):
 
 
 if __name__ == "__main__":
+    configParser = loadConfig()
+    layout_name = configParser['GRID']['LAYOUT_NAME']
+    gridlayout = GridLayout(layout_name)
+
     # Load distance estimator object
-    estimator = DistanceEstimation()
+    estimator = DistanceEstimation(gridlayout)
     hole_coordinates = ()
 
     # Read image
@@ -44,7 +50,7 @@ if __name__ == "__main__":
     img = cv2.imread(img_path, 1)
 
     # Display image and grid layout
-    img = plot_grid(img, estimator.grid)
+    img = plot_grid(img, gridlayout.getGridNodes())
     cv2.imshow('image', img)
 
     # Set mouse handler for the image and call the click_event() function
