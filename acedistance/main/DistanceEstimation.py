@@ -1,6 +1,7 @@
 import math
 import cv2
 import numpy as np
+from scipy.spatial import distance
 
 
 class DistanceEstimation:
@@ -75,7 +76,7 @@ class DistanceEstimation:
         # Calculates residuals in terms of meters
 
         # Project coordinates
-        #t, projection = self.projectCoordinate(coordinate=coordinate, p0=np.array(p0), p1=np.array(p1))
+        # t, projection = self.projectCoordinate(coordinate=coordinate, p0=np.array(p0), p1=np.array(p1))
         c = self.gridlayout.getContainingCell(coordinate)
         t, projection = self.point_on_line(np.array(p0), np.array(p1), coordinate)
         print(f't: {t}')
@@ -84,6 +85,28 @@ class DistanceEstimation:
         self.shortest_distance(coordinate, p0, p1)
 
         return residual
+
+    def getAverage(self, p0, p1):
+        p0 = np.array(p0)
+        p1 = np.array(p1)
+
+        avg = (p0 + p1) / 2
+        return avg
+
+    def getClosestSide(self, p0, p1, p2, p3, coordinate):
+        p0 = np.array(p0)
+        p1 = np.array(p1)
+        p2 = np.array(p2)
+        p3 = np.array(p3)
+        coordinate = np.array(coordinate)
+
+        avg1 = self.getAverage(p0, p1)
+        avg2 = self.getAverage(p2, p3)
+
+        if distance.euclidean(avg1, coordinate) < distance.euclidean(avg2, coordinate):
+            return p0, p1
+
+        return p2, p3
 
     def estimateDistance(self, coordinate_ball, coordinate_hole, img):
         self.img = img
@@ -100,33 +123,29 @@ class DistanceEstimation:
         adj_nodes_hole = self.getAdjNodes(coordinate_hole)
 
         # Calc residuals
-        if adj_nodes_ball['tl'][0] <= coordinate_ball[0] <= adj_nodes_ball['tr'][0]:
-            x_ball_p0 = adj_nodes_ball['tl']
-            x_ball_p1 = adj_nodes_ball['tr']
-        else:
-            x_ball_p0 = adj_nodes_ball['bl']
-            x_ball_p1 = adj_nodes_ball['br']
+        x_ball_p0, x_ball_p1 = self.getClosestSide(adj_nodes_ball['tr'],
+                                                   adj_nodes_ball['tl'],
+                                                   adj_nodes_ball['bl'],
+                                                   adj_nodes_ball['br'],
+                                                   coordinate_ball)
 
-        if adj_nodes_ball['tr'][1] <= coordinate_ball[1] <= adj_nodes_ball['br'][1]:
-            y_ball_p0 = adj_nodes_ball['tr']
-            y_ball_p1 = adj_nodes_ball['br']
-        else:
-            y_ball_p0 = adj_nodes_ball['tl']
-            y_ball_p1 = adj_nodes_ball['bl']
+        y_ball_p0, y_ball_p1 = self.getClosestSide(adj_nodes_ball['tr'],
+                                                   adj_nodes_ball['br'],
+                                                   adj_nodes_ball['tl'],
+                                                   adj_nodes_ball['bl'],
+                                                   coordinate_ball)
 
-        if adj_nodes_hole['tl'][0] <= coordinate_hole[0] <= adj_nodes_hole['tr'][0]:
-            x_hole_p0 = adj_nodes_hole['tl']
-            x_hole_p1 = adj_nodes_hole['tr']
-        else:
-            x_hole_p0 = adj_nodes_hole['bl']
-            x_hole_p1 = adj_nodes_hole['br']
+        x_hole_p0, x_hole_p1 = self.getClosestSide(adj_nodes_hole['tl'],
+                                                   adj_nodes_hole['tr'],
+                                                   adj_nodes_hole['bl'],
+                                                   adj_nodes_hole['br'],
+                                                   coordinate_hole)
 
-        if adj_nodes_hole['tr'][1] <= coordinate_hole[1] <= adj_nodes_hole['br'][1]:
-            y_hole_p0 = adj_nodes_hole['tr']
-            y_hole_p1 = adj_nodes_hole['br']
-        else:
-            y_hole_p0 = adj_nodes_hole['tl']
-            y_hole_p1 = adj_nodes_hole['bl']
+        y_hole_p0, y_hole_p1 = self.getClosestSide(adj_nodes_hole['br'],
+                                                   adj_nodes_hole['tr'],
+                                                   adj_nodes_hole['bl'],
+                                                   adj_nodes_hole['tl'],
+                                                   coordinate_hole)
 
         res_x_ball = self.calcResidual(coordinate_ball, x_ball_p0, x_ball_p1)
         res_y_ball = self.calcResidual(coordinate_ball, y_ball_p0, y_ball_p1)
@@ -155,8 +174,8 @@ class DistanceEstimation:
         print(f'residual: {res_y_hole}')
 
         dist_x, dist_y = self.gridlayout.getDistBetweenCells(coordinate_ball, coordinate_hole)
-        a = dist_x * self.gridlayout.getDistBetweenNodes() + (res_x_ball + res_x_hole)
-        b = dist_y * self.gridlayout.getDistBetweenNodes() + (res_y_ball + res_y_hole)
+        a = dist_x * self.gridlayout.getDistBetweenNodes()# + (res_x_ball + res_x_hole)
+        b = dist_y * self.gridlayout.getDistBetweenNodes()# + (res_y_ball + res_y_hole)
 
         dist = round(math.sqrt(a ** 2 + b ** 2), 2)
 

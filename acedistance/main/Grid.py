@@ -52,8 +52,8 @@ class GridLayout:
         cell1 = self.getContainingCell(coordinate1)
         cell2 = self.getContainingCell(coordinate2)
 
-        dist_x = abs(cell1.x - cell2.x) - 1
-        dist_y = abs(cell1.y - cell2.y) - 1
+        dist_x = max(0, abs(cell1.x - cell2.x))
+        dist_y = max(0, abs(cell1.y - cell2.y))
 
         return dist_x, dist_y
 
