@@ -1,6 +1,21 @@
 # Distance-Estimation
 
-This is the repository for the AceChallenge distance estimation project where we estimate the distance between the golf ball and hole.
+This is the repository for the AceChallenge distance estimation project where the distance between a golf ball and hole is estimated (in terms of meters) based on two pairs (before shoot / after shoot) images.
+
+The module consists of two main steps:
+- Object detection: Using opencv, the golf ball and golf hole is detected on the images
+- Distance estimation: Given the coordinates (in pixels) of the golf ball and hole, the distance between the two objects is estimated using a pre-defined layout which maps the pixels on the image to distances in real life (in meters).
+
+### Demo
+A demo workflow can be found under the /demo folder. It shows what the output should be for an ideal scenario where the objects (golf ball and hole) are detected accurately, and the distance between them is rendered on the image (result.jpg).
+Additionally, a 'result.json' file is exported which includes all meta data necessary for post-processing and debugging.
+
+In the /demo/ball and /demo/hole folders the different masks can be seen that are applied on the images one by one for detecting the golf ball and hole respectively.
+
+![Demo image](demo/result.jpg?raw=true "Demo image")
+
+
+
 
 # Installing (Linux / MacOS)
 #### Run install script
