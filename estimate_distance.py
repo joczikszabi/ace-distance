@@ -2,8 +2,7 @@ import cv2
 import json
 import os.path
 import argparse
-
-from helpers.load import loadConfig
+from acedistance.helpers.load import loadConfig
 from acedistance.main.Grid import GridLayout
 from acedistance.main.ObjectDetection import ObjectDetection
 from acedistance.main.DistanceEstimation import DistanceEstimation

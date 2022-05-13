@@ -1,7 +1,7 @@
 import os
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
-from helpers.load import loadConfig, loadLayout
+from acedistance.helpers.load import loadConfig, loadLayout
 
 
 class GridLayout:

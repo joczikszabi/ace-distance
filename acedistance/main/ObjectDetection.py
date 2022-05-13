@@ -3,7 +3,7 @@ import cv2
 import json
 import math
 import numpy as np
-from helpers.load import loadConfig
+from acedistance.helpers.load import loadConfig
 
 
 class ObjectDetection:
