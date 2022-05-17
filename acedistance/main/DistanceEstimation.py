@@ -1,7 +1,6 @@
 import math
 import cv2
 import numpy as np
-from scipy.spatial import distance
 from shapely.geometry import LineString
 
 
@@ -24,6 +23,7 @@ class DistanceEstimation:
             'bl': points[3]
         }
 
+        """
         cv2.putText(self.img, 'tl', (int(adj_nodes['tl'][0]) - 10, int(adj_nodes['tl'][1]) - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.circle(self.img, (adj_nodes['tl'][0], adj_nodes['tl'][1]), 2, (100, 200, 0), -1)
@@ -39,7 +39,7 @@ class DistanceEstimation:
         cv2.putText(self.img, 'bl', (int(adj_nodes['bl'][0]) - 10, int(adj_nodes['bl'][1]) + 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.circle(self.img, (adj_nodes['bl'][0], adj_nodes['bl'][1]), 2, (100, 200, 0), -1)
-
+        """
         return adj_nodes
 
     def point_on_line(self, a, b, p):
@@ -80,6 +80,7 @@ class DistanceEstimation:
         # Ref: https://stackoverflow.com/questions/61341712/calculate-projected-point-location-x-y-on-given-line-startx-y-endx-y
 
         adj_nodes = self.getAdjNodes(coordinate)
+        '''
         cv2.putText(self.img, 'tl', (int(adj_nodes['tl'][0]) - 10, int(adj_nodes['tl'][1]) - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.circle(self.img, (adj_nodes['tl'][0], adj_nodes['tl'][1]), 2, (100, 200, 0), -1)
@@ -95,6 +96,7 @@ class DistanceEstimation:
         cv2.putText(self.img, 'bl', (int(adj_nodes['bl'][0]) - 10, int(adj_nodes['bl'][1]) + 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.circle(self.img, (adj_nodes['bl'][0], adj_nodes['bl'][1]), 2, (100, 200, 0), -1)
+        '''
 
         l2 = np.sum((p0 - p1) ** 2)
         t = np.sum((coordinate - p0) * (p1 - p0)) / l2

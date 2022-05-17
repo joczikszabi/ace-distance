@@ -65,31 +65,36 @@ class ObjectDetection:
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/1gray.jpg", cv_gray)
 
         # Apply erode to strength contours
-        element = np.ones((7, 7))
+        element = np.ones((5, 5))
         cv_erode = cv2.erode(cv_gray, element)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/2erode.jpg", cv_erode)
 
         # Threshold detection
         cv_thresh = cv2.adaptiveThreshold(cv_erode, 255,
-                                          cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 51, 9)
+                                          cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 37, 10)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/3tresh.jpg", cv_thresh)
 
         # Remove small noise from image
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 6))
         cv_opening = cv2.morphologyEx(cv_thresh, cv2.MORPH_OPEN, kernel, iterations=2)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/4morph.jpg", cv_opening)
 
+        # Apply dilate to connect broken white contours
+        element = np.ones((4, 2))
+        cv_dilate = cv2.dilate(cv_opening, element)
+        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/5dilate.jpg", cv_dilate)
+
         # Remove contours that are too small or too large
-        cnts = cv2.findContours(cv_opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnts = cv2.findContours(cv_dilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cnts = cnts[0] if len(cnts) == 2 else cnts[1]
 
         for c in cnts:
-            if cv2.contourArea(c) < 100 or cv2.contourArea(c) > 600:
-                cv2.drawContours(cv_opening, [c], 0, (0, 0, 0), -1)
+            if cv2.contourArea(c) < 100:
+                cv2.drawContours(cv_dilate, [c], 0, (0, 0, 0), -1)
 
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/5contour.jpg", cv_opening)
+        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/6contour.jpg", cv_dilate)
 
-        cv_contours, _ = cv2.findContours(cv_opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        cv_contours, _ = cv2.findContours(cv_dilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         selected_contour = None
         max_area = 0
 
@@ -125,7 +130,7 @@ class ObjectDetection:
         # Draw the contour on the new mask and perform the bitwise operation
         pos_ace_hole = (x, y)
         img_result = cv2.circle(img, pos_ace_hole, 2, (0, 0, 255), 2)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/6result.jpg", img_result)
+        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/7result.jpg", img_result)
 
         return pos_ace_hole
 
@@ -149,19 +154,24 @@ class ObjectDetection:
         contours_before = self.getContoursForBall(img_before_cropped)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3a_contours_before.jpg", contours_before)
 
-        # Enlarge found contours on before image for substaction
-        element = np.ones((5, 5))
-        contours_before_erode = cv2.dilate(contours_before, element)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3a_contours_before_erode.jpg", contours_before_erode)
+        # Enlarge found contours on before image for subtraction
+        element = np.ones((4, 4))
+        contours_before_dilate = cv2.dilate(contours_before, element)
+        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3a_contours_before_dilate.jpg", contours_before_dilate)
 
         contours_after = self.getContoursForBall(img_after_cropped)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3b_contours_after.jpg", contours_after)
 
-        contours = cv2.subtract(contours_after, contours_before_erode)
+        # Enlarge found contours on after image for subtraction (not as much as on the before image)
+        element = np.ones((3, 2))
+        contours_after_dilate = cv2.dilate(contours_after, element)
+        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3b_contours_after_dilate.jpg", contours_after_dilate)
+
+        contours = cv2.subtract(contours_after_dilate, contours_before_dilate)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3c_contours_substract.jpg", contours)
 
         # Apply morphology for cleaning up noise
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 1))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
         cv_opening = cv2.morphologyEx(contours, cv2.MORPH_OPEN, kernel, iterations=1)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/4morph.jpg", cv_opening)
 
@@ -179,7 +189,8 @@ class ObjectDetection:
             y_max = np.max(contour_np[:, 1])
             y_avg = np.mean(contour_np[:, 1])
 
-            if cv2.contourArea(c) > 25 or abs(y_min - y_max) > 10 or abs(x_min - x_max) > 10 or x_avg < 100:
+            if cv2.contourArea(c) < 3 or cv2.contourArea(c) > 30 or abs(y_min - y_max) > 10 or abs(x_min - x_max) > 10 \
+                    or x_avg < 100 or y_avg < 5:
                 cv2.drawContours(cv_opening, [c], 0, (0, 0, 0), -1)
 
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/5contour.jpg", cv_opening)
