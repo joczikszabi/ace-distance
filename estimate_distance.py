@@ -7,6 +7,16 @@ from acedistance.main.Grid import GridLayout
 from acedistance.main.ObjectDetection import ObjectDetection
 from acedistance.main.DistanceEstimation import DistanceEstimation
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 
 def main(img_before_path, img_after_path, out_dir=None, layout_name=None, debug_mode=None):
 
@@ -105,7 +115,7 @@ def getOptionalArguments(img_after_path, out_dir, layout_name, debug_mode):
         layout_name = configParser['GRID']['LAYOUT_NAME']
 
     if debug_mode is None:
-        debug_mode = bool(configParser['PROGRAM']['DEBUG_MODE'])
+        debug_mode = bool(int(configParser['PROGRAM']['DEBUG_MODE']))
 
     return out_dir, layout_name, debug_mode
 
@@ -174,7 +184,7 @@ if __name__ == "__main__":
 
     parser.add_argument('-d',
                         '--debug_mode',
-                        type=bool,
+                        type=str2bool,
                         help='(Optional) If set to True, additional data is exported along with the results for '
                              'debugging purposes. False by default.',
                         required=False)
