@@ -133,12 +133,6 @@
       "is_ball_detected": true
     },
     {
-      "img_name": "b8572a39-92df-4f9d-8ef4-99edeee3e928",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
       "img_name": "d08aee79-9aa1-40e8-a60f-05f8cf91eae3",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,

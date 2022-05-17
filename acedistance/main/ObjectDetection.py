@@ -124,8 +124,8 @@ class ObjectDetection:
             return None
 
         cnt2 = np.asarray([[alma[0][0]+x0, alma[0][1] + y0] for alma in selected_contour])
-        x = int(np.ceil(np.mean(cnt2[:, 0])))
-        y = max(cnt2[:, 1])
+        y = max(cnt2[:, 1]) - 5
+        x = int(np.mean(np.array([v for v in cnt2 if v[1] == y])[:, 0]))
 
         # Draw the contour on the new mask and perform the bitwise operation
         pos_ace_hole = (x, y)
