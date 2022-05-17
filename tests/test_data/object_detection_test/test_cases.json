@@ -97,12 +97,6 @@
       "is_ball_detected": true
     },
     {
-      "img_name": "1f728394-c49e-4116-a9f1-7c325cfe9ae3",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
       "img_name": "05a8f24c-886d-4def-869b-91877b43e525",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
@@ -139,12 +133,6 @@
       "is_ball_detected": true
     },
     {
-      "img_name": "692f45d3-b42a-4b61-a3e8-746ed680b049",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
       "img_name": "b8572a39-92df-4f9d-8ef4-99edeee3e928",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
@@ -153,7 +141,7 @@
     {
       "img_name": "d08aee79-9aa1-40e8-a60f-05f8cf91eae3",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": false,
+      "is_hole_detected": true,
       "is_ball_detected": false
     },
     {
