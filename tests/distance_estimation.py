@@ -1,11 +1,10 @@
 import os
 import sys
 import cv2
-from helpers.load import loadConfig
-from acedistance.main.Grid import GridLayout
-
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '..'))
 
+from acedistance.helpers.load import loadConfig
+from acedistance.main.Grid import GridLayout
 from acedistance.helpers.plot import plot_grid
 from acedistance.main.DistanceEstimation import DistanceEstimation
 
