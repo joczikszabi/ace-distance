@@ -50,7 +50,7 @@ class DistanceEstimation:
         t = max(0, min(1, t))
         projection = a + t * ab
 
-        cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
+        #cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
 
         return t, projection
 
@@ -71,7 +71,7 @@ class DistanceEstimation:
         c = p0[0] * p1[1] - p0[1] * p1[0]
 
         d = abs((a * point[0] + b * point[1] + c)) / (math.sqrt(a * a + b * b))
-        print(f"Perpendicular distance is: {d}")
+        # print(f"Perpendicular distance is: {d}")
 
         return d
 
@@ -102,7 +102,7 @@ class DistanceEstimation:
         t = np.sum((coordinate - p0) * (p1 - p0)) / l2
 
         projection = p0 + t * (p1 - p0)
-        cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
+        #cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
         return t, projection
 
     def calcResidual(self, coordinate, p0, p1):
@@ -111,10 +111,10 @@ class DistanceEstimation:
         # Project coordinates
         #t, projection = self.projectCoordinate(coordinate=coordinate, p0=p0, p1=p1)
         t, projection = self.point_on_line(np.array(p0), np.array(p1), coordinate)
-        print(f't: {t}')
+        #print(f't: {t}')
         residual = self.gridlayout.getDistBetweenNodes() * t
 
-        print(self.shortest_distance(coordinate, p0, p1))
+        #print(self.shortest_distance(coordinate, p0, p1))
 
         return residual
 
@@ -307,7 +307,7 @@ class DistanceEstimation:
             residual_total_x = abs(x_residual_ball - x_residual_hole)
 
 
-
+        '''
         print("Projecting on x (ball)")
         print(f'Coordinate: {coordinate_ball}')
         print(f'residual: {x_residual_ball}')
@@ -326,12 +326,13 @@ class DistanceEstimation:
 
         print(f'Residual total (x): {residual_total_x}')
         print(f'Residual total (y): {residual_total_y}')
+        '''
 
         dist_x, dist_y = self.gridlayout.distCoordinates(coordinate_ball, coordinate_hole)
         a = dist_y * self.gridlayout.getDistBetweenNodes() + residual_total_x
         b = dist_x * self.gridlayout.getDistBetweenNodes() + residual_total_y
 
-        [print(x) for x in self.directions]
+        #[print(x) for x in self.directions]
 
         dist = round(math.sqrt(a ** 2 + b ** 2), 2)
 

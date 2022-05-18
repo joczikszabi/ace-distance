@@ -2,7 +2,7 @@ import os
 import shutil
 from datetime import date
 from random import randint
-from helpers.load import loadConfig
+from acedistance.helpers.load import loadConfig
 
 
 def deploy():
