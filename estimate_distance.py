@@ -75,13 +75,13 @@ def main(img_before_path, img_after_path, out_dir=None, layout_name=None, debug_
         img_after = cv2.imread(img_after_path)
         dist = estimator.estimateDistance(pos_ball, pos_hole, img_after)
 
-    except ValueError:
+    except ValueError as e:
         output = defaultOutput(version=version,
                                img_before_path=img_before_path,
                                img_after_path=img_after_path,
                                layout_name=layout_name,
                                results_path=out_dir,
-                               err_msg="Error occurred in estimateDistance")
+                               err_msg=e.args[0])
         emitAndSaveOutput(output, out_dir)
         return output
 
