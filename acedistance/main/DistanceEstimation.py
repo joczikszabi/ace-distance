@@ -50,7 +50,7 @@ class DistanceEstimation:
         t = max(0, min(1, t))
         projection = a + t * ab
 
-        #cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
+        # cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
 
         return t, projection
 
@@ -102,19 +102,37 @@ class DistanceEstimation:
         t = np.sum((coordinate - p0) * (p1 - p0)) / l2
 
         projection = p0 + t * (p1 - p0)
-        #cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
+        # cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
         return t, projection
 
     def calcResidual(self, coordinate, p0, p1):
-        # Calculates residuals in terms of meters
+        # Calculates residuals in terms of meters using projection
 
         # Project coordinates
-        #t, projection = self.projectCoordinate(coordinate=coordinate, p0=p0, p1=p1)
+        # t, projection = self.projectCoordinate(coordinate=coordinate, p0=p0, p1=p1)
         t, projection = self.point_on_line(np.array(p0), np.array(p1), coordinate)
-        #print(f't: {t}')
+        # print(f't: {t}')
         residual = self.gridlayout.getDistBetweenNodes() * t
 
-        #print(self.shortest_distance(coordinate, p0, p1))
+        # print(self.shortest_distance(coordinate, p0, p1))
+
+        return residual
+
+    def calcResidualByIntersection(self, coordinate, p0, p1):
+        """ Calc residual using simple intersection"""
+
+        adj_nodes = self.getAdjNodes(coordinate)
+
+        grid_vertical_sideline = LineString([p0, p1])
+        max_x = max([v[0] for v in adj_nodes.values()])
+        horizontal_line = LineString([(0, coordinate[1]), (max_x, coordinate[1])])
+        intersected_point = grid_vertical_sideline.intersection(horizontal_line)
+
+        if 'x' not in dir(intersected_point):
+            raise ValueError('Cannot use intersection for residual calculation')
+
+        intersected_point = np.array([intersected_point.x, intersected_point.y])
+        residual = self.calcResidual(intersected_point, p0, p1)
 
         return residual
 
@@ -199,13 +217,16 @@ class DistanceEstimation:
                                      adj_nodes['br'],
                                      coordinate)
 
-        grid_vertical_sideline = LineString([p0, p1])
-        max_x = max([v[0] for v in adj_nodes.values()])
-        horizontal_line = LineString([(0, coordinate[1]), (max_x, coordinate[1])])
+        residual_intersection = None
+        try:
+            residual_intersection = self.calcResidualByIntersection(coordinate, p0, p1)
+        except ValueError as e:
+            pass
 
-        intersected_point = grid_vertical_sideline.intersection(horizontal_line)
-        intersected_point = np.array([intersected_point.x, intersected_point.y])
-        residual = self.calcResidual(intersected_point, p0, p1)
+        residual = self.calcResidual(coordinate, p0, p1)
+
+        if residual_intersection and (residual_intersection - residual) > 0.5:
+            residual = residual_intersection
 
         # If ball is under the hole (vertically), return residual as it is calculated in the correct direction
         if coordinate[1] > coordinate_hole[1]:
@@ -213,7 +234,7 @@ class DistanceEstimation:
             return residual
 
         # Else return distance in the opposite direction
-        residual = self.gridlayout.getDistBetweenNodes() - self.calcResidual(coordinate, p0, p1)
+        residual = self.gridlayout.getDistBetweenNodes() - residual
 
         self.directions.append('BALL Y: DOWN ')
         return residual
@@ -256,13 +277,16 @@ class DistanceEstimation:
                                      adj_nodes['tr'],
                                      coordinate)
 
-        grid_vertical_sideline = LineString([p0, p1])
-        max_x = max([v[0] for v in adj_nodes.values()])
-        horizontal_line = LineString([(0, coordinate[1]), (max_x, coordinate[1])])
+        residual_intersection = None
+        try:
+            residual_intersection = self.calcResidualByIntersection(coordinate, p0, p1)
+        except ValueError as e:
+            pass
 
-        intersected_point = grid_vertical_sideline.intersection(horizontal_line)
-        intersected_point = np.array([intersected_point.x, intersected_point.y])
-        residual = self.calcResidual(intersected_point, p0, p1)
+        residual = self.calcResidual(coordinate, p0, p1)
+
+        if residual_intersection and (residual_intersection - residual) > 0.5:
+            residual = residual_intersection
 
         # If ball is under the hole (vertically), return residual as it is calculated in the correct direction
         if coordinate_ball[1] > coordinate[1]:
@@ -270,7 +294,7 @@ class DistanceEstimation:
             return residual
 
         # Else return distance in the opposite direction
-        residual = self.gridlayout.getDistBetweenNodes() - self.calcResidual(coordinate, p0, p1)
+        residual = self.gridlayout.getDistBetweenNodes() - residual
 
         self.directions.append('Hole Y: UP ')
         return residual
@@ -306,7 +330,6 @@ class DistanceEstimation:
             x_residual_hole = self.gridlayout.getDistBetweenNodes() - x_residual_hole
             residual_total_x = abs(x_residual_ball - x_residual_hole)
 
-
         '''
         print("Projecting on x (ball)")
         print(f'Coordinate: {coordinate_ball}')
@@ -332,7 +355,7 @@ class DistanceEstimation:
         a = dist_y * self.gridlayout.getDistBetweenNodes() + residual_total_x
         b = dist_x * self.gridlayout.getDistBetweenNodes() + residual_total_y
 
-        #[print(x) for x in self.directions]
+        # [print(x) for x in self.directions]
 
         dist = round(math.sqrt(a ** 2 + b ** 2), 2)
 
