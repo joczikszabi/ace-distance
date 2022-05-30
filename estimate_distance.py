@@ -7,6 +7,7 @@ from acedistance.main.Grid import GridLayout
 from acedistance.main.ObjectDetection import ObjectDetection
 from acedistance.main.DistanceEstimation import DistanceEstimation
 
+
 def str2bool(v):
     if isinstance(v, bool):
         return v
@@ -19,7 +20,6 @@ def str2bool(v):
 
 
 def main(img_before_path, img_after_path, out_dir=None, layout_name=None, debug_mode=None):
-
     # Load config data from config file
     configParser = loadConfig()
     version = configParser['PROGRAM']['VERSION']
@@ -32,10 +32,6 @@ def main(img_before_path, img_after_path, out_dir=None, layout_name=None, debug_
 
     # Set layout
     gridlayout = GridLayout(layout_name)
-
-    # Create out directory if does not exist
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
 
     # Check if images exist
     if not os.path.isfile(img_before_path):
@@ -143,6 +139,10 @@ def emitAndSaveOutput(output, out_dir):
     output_json = json.dumps(output)
     print(output_json)
 
+    # Create out directory if does not exist
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
     # Save json for logging purposes
     with open(f'{out_dir}/results.json', 'w') as f:
         json.dump(output, f)
@@ -157,6 +157,7 @@ def saveResultImg(img, pos_ball, pos_hole, dist, out_dir):
 
 
 if __name__ == "__main__":
+    configParser = loadConfig()
 
     # Add argparser arguments
     parser = argparse.ArgumentParser(description='This is the AceChallenge distance estimator entry script.')
@@ -180,24 +181,36 @@ if __name__ == "__main__":
                         type=str,
                         help='(Optional) Name of the grid layout that will be used for the distance estimation. By '
                              'default, the specified layout in config.ini is used.',
-                        required=False)
+                        required=False,
+                        default=configParser['GRID']['LAYOUT_NAME'])
 
     parser.add_argument('-d',
                         '--debug_mode',
                         type=str2bool,
                         help='(Optional) If set to True, additional data is exported along with the results for '
                              'debugging purposes. False by default.',
-                        required=False)
+                        required=False,
+                        default=bool(int(configParser['PROGRAM']['DEBUG_MODE'])))
 
-    configParser = loadConfig()
     parser.add_argument('-v', '--version', action='version',
                         version='acedistance {version}'.format(version=configParser['PROGRAM']['VERSION']))
 
     # Execute the parse_args() method
     args = parser.parse_args()
 
-    main(img_before_path=args.img_before_path,
-         img_after_path=args.img_after_path,
-         out_dir=args.output if hasattr(args, 'output') else None,
-         layout_name=args.layout_name if hasattr(args, 'layout_name') else None,
-         debug_mode=args.debug_mode if hasattr(args, 'debug_mode') else None)
+    try:
+        main(img_before_path=args.img_before_path,
+             img_after_path=args.img_after_path,
+             out_dir=args.output,
+             layout_name=args.layout_name,
+             debug_mode=args.debug_mode)
+
+    except Exception as e:
+        resultspath = args.output if args.output is not None else f"{configParser['PROGRAM']['DEFAULT_OUTDIR']}/{os.path.splitext(os.path.basename(args.img_after_path))[0]}"
+        output = defaultOutput(version=configParser['PROGRAM']['VERSION'],
+                               img_before_path=args.img_before_path,
+                               img_after_path=args.img_after_path,
+                               layout_name=args.layout_name,
+                               results_path=resultspath,
+                               err_msg=e.args[0])
+        emitAndSaveOutput(output, resultspath)

@@ -41,6 +41,41 @@
       "is_hole_detected": null,
       "is_ball_detected": null,
       "error": "Image (before) not found on path:"
+    },
+    {
+      "img_name": "ac91d0d0-4030-4a8d-80f4-6ea220b39c6e",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "is_hole_detected": true,
+      "is_ball_detected": true,
+      "error": ""
+    },
+    {
+      "img_name": "88d80b46-fd4e-4a1d-a1a0-0b74ed48faeb",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "is_hole_detected": true,
+      "is_ball_detected": true,
+      "error": ""
+    },
+    {
+      "img_name": "411f6b4d-6e38-450b-be2b-5a2143d875ba",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "is_hole_detected": true,
+      "is_ball_detected": true,
+      "error": ""
+    },
+    {
+      "img_name": "581d50d3-af5c-48a2-8474-0fa724e627eb",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "is_hole_detected": true,
+      "is_ball_detected": true,
+      "error": ""
+    },
+    {
+      "img_name": "fa8bd53e-e028-48ae-8419-bd5ea6909ceb",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "is_hole_detected": true,
+      "is_ball_detected": true,
+      "error": ""
     }
   ]
 }
