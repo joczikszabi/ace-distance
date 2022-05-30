@@ -105,7 +105,7 @@ class DistanceEstimation:
         # cv2.circle(self.img, (int(projection[0]), int(projection[1])), 2, (255, 0, 255), -1)
         return t, projection
 
-    def calcResidual(self, coordinate, p0, p1):
+    def calcResidualByProjection(self, coordinate, p0, p1):
         # Calculates residuals in terms of meters using projection
 
         # Project coordinates
@@ -127,12 +127,8 @@ class DistanceEstimation:
         max_x = max([v[0] for v in adj_nodes.values()])
         horizontal_line = LineString([(0, coordinate[1]), (max_x, coordinate[1])])
         intersected_point = grid_vertical_sideline.intersection(horizontal_line)
-
-        if 'x' not in dir(intersected_point):
-            raise ValueError('Cannot use intersection for residual calculation')
-
         intersected_point = np.array([intersected_point.x, intersected_point.y])
-        residual = self.calcResidual(intersected_point, p0, p1)
+        residual = self.calcResidualByProjection(intersected_point, p0, p1)
 
         return residual
 
@@ -195,7 +191,7 @@ class DistanceEstimation:
                                      adj_nodes['bl'],
                                      coordinate)
 
-        residual = self.calcResidual(coordinate, p0, p1)
+        residual = self.calcResidualByProjection(coordinate, p0, p1)
 
         self.directions.append('Ball X: RIGHT ')
 
@@ -217,16 +213,11 @@ class DistanceEstimation:
                                      adj_nodes['br'],
                                      coordinate)
 
-        residual_intersection = None
         try:
-            residual_intersection = self.calcResidualByIntersection(coordinate, p0, p1)
-        except ValueError as e:
-            pass
-
-        residual = self.calcResidual(coordinate, p0, p1)
-
-        if residual_intersection and (residual_intersection - residual) > 0.5:
-            residual = residual_intersection
+            residual = self.calcResidualByIntersection(coordinate, p0, p1)
+        except AttributeError:
+            # Cannot use intersection for residual calculation so use projection instead
+            residual = self.calcResidualByProjection(coordinate, p0, p1)
 
         # If ball is under the hole (vertically), return residual as it is calculated in the correct direction
         if coordinate[1] > coordinate_hole[1]:
@@ -255,7 +246,7 @@ class DistanceEstimation:
                                      adj_nodes['br'],
                                      coordinate)
 
-        residual = self.calcResidual(coordinate, p0, p1)
+        residual = self.calcResidualByProjection(coordinate, p0, p1)
 
         self.directions.append('Hole X: LEFT ')
 
@@ -277,16 +268,11 @@ class DistanceEstimation:
                                      adj_nodes['tr'],
                                      coordinate)
 
-        residual_intersection = None
         try:
-            residual_intersection = self.calcResidualByIntersection(coordinate, p0, p1)
-        except ValueError as e:
-            pass
-
-        residual = self.calcResidual(coordinate, p0, p1)
-
-        if residual_intersection and (residual_intersection - residual) > 0.5:
-            residual = residual_intersection
+            residual = self.calcResidualByIntersection(coordinate, p0, p1)
+        except AttributeError:
+            # Cannot use intersection for residual calculation so use projection instead
+            residual = self.calcResidualByProjection(coordinate, p0, p1)
 
         # If ball is under the hole (vertically), return residual as it is calculated in the correct direction
         if coordinate_ball[1] > coordinate[1]:
