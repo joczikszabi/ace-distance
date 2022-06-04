@@ -31,15 +31,15 @@
     {
       "img_name": "error1",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": null,
-      "is_ball_detected": null,
+      "is_hole_detected": false,
+      "is_ball_detected": false,
       "error": "Image (after) not found on path:"
     },
     {
       "img_name": "error2",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": null,
-      "is_ball_detected": null,
+      "is_hole_detected": false,
+      "is_ball_detected": false,
       "error": "Image (before) not found on path:"
     },
     {
