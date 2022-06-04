@@ -11,7 +11,7 @@ def deploy():
     # Set deployment meta data
     PACKAGE_NAME = 'acedistance'
     DEPLOY_VERSION = configParser['PROGRAM']['VERSION']
-    DEPLOY_DATE = date.today().strftime("%d%m%Y")
+    DEPLOY_DATE = configParser['PROGRAM']['RELEASE_DATE']
     DEPLOY_SUFFIX = randint(1000, 9999)
     DEPLOY_DIR = f'{PACKAGE_NAME}_{DEPLOY_VERSION}_{DEPLOY_DATE}_{DEPLOY_SUFFIX}'
 

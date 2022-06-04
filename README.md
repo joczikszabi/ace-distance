@@ -36,21 +36,32 @@ python estimate_distance.py --help
 ```
 
 # Testing
-Pytest is used for testing the algorithm. Run pytest which automatically detects and runs all test functions
+Pytest is used for testing the algorithm. Run pytest which automatically detects and runs all test functions:
 ```bash
 pytest
 ```
 
-To run tests in debug mode with printed messages displayed, use
+To run tests in debug mode with printed messages displayed, use:
 ```bash
 pytest -s 
 ```
 
-After the script is finished, the results can be found under /test_results
+After the script is finished, the results can be found under /test_results.
 
 # Deploy
-In order to deploy the module for use on production serve, use the deploy script as follows:
+In order to deploy the module for use on the production server, use the deployment script as follows:
 ```
 python deploy.py
 ```
-The deployed version will be a minimized version of the repository with only the neccessary modules and packages included
+This script will create a minimized version of the ace-distance module ready for deployment on the production server, and a zipped version of it. The minimized version includes only the necessary modules and packages to run the algorithm.
+
+# Making a release
+The release process for the ace-disance module is the following:
+1. Checkout on a new release branch
+2. Change VERSION and RELEASE_DATE values in config/config.ini
+3. Run pytest and make sure all tests pass   
+4. Make a deployed version for the production server using deploy.py
+5. Copy the deployed version in a different folder, run the setup script and test it manually with a few images
+6. Push changes to repository, create a new tag and merge branch into main
+7. Copy the deployed version to the production server and replace the previous version with it
+8. Optionally test the deployed version on the server in docker environment and/or ask Bram to run a full system test in order to make sure everything is working correctly
