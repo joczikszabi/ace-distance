@@ -2,7 +2,6 @@ image: continuumio/miniconda3
 
 before_script:
     - apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-    - python --version  # For debugging
     - conda env create -f environment.yml
     - conda init bash
     - source ~/.bashrc

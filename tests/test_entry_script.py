@@ -25,6 +25,9 @@ def test_entry_script_returned_data(testcase):
         assert actual_result['distance'] is not None
         assert actual_result['results_path'] == os.path.abspath(f"{output_path}/result.jpg")
 
+    else:
+        assert actual_result['distance'] is None
+
     assert actual_result['img_before_path'] == basecls.get_img_before_path(testcase['img_name'])
     assert actual_result['img_after_path'] == basecls.get_img_after_path(testcase['img_name'])
     assert actual_result['error'].startswith(testcase['error'])
@@ -42,4 +45,4 @@ def test_results_exported(testcase):
     if testcase['is_hole_detected'] and testcase['is_ball_detected']:
         assert os.path.isfile(f'{output_path}/result.jpg')
 
-    assert os.path.isfile(f'{output_path}/results.json')
+    assert os.path.isfile(f'{output_path}/result.json')

@@ -285,7 +285,7 @@ class DistanceEstimation:
         self.directions.append('Hole Y: UP ')
         return residual
 
-    def estimateDistance(self, coordinate_ball, coordinate_hole, img):
+    def estimateDistance(self, coordinate_hole, coordinate_ball, img):
         self.img = img
 
         if coordinate_ball is None or coordinate_hole is None:

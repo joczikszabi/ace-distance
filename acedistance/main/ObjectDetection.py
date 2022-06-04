@@ -1,32 +1,22 @@
 import os
 import cv2
-import json
 import math
 import numpy as np
-from acedistance.helpers.load import loadConfig
 
 
 class ObjectDetection:
-    def __init__(self, img_before_path, img_after_path, debug_mode=False, out_dir="", layout_name=''):
+    def __init__(self, img_before_path, img_after_path, gridlayout, out_dir, debug_mode=False):
+        self.gridlayout = gridlayout
 
-        # Load config data from config file
-        configParser = loadConfig()
-        configFilePath = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.ini')
-        configParser.read(configFilePath)
-
-        if layout_name == '':
-            # Load config data from config file
-            layout_name = configParser['GRID']['LAYOUT_NAME']
-
-        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{layout_name}', 'grid.json')
-        self.loadGridFromJson()
-
-        # Set paths and data
         self.img_before_path = img_before_path
-        self.img_before = cv2.imread(img_before_path)
+        if not os.path.isfile(self.img_before_path):
+            raise FileNotFoundError(f'Image (before) not found on path: {self.img_before_path}')
+        self.img_before = cv2.imread(self.img_before_path)
 
         self.img_after_path = img_after_path
-        self.img_after = cv2.imread(img_after_path)
+        if not os.path.isfile(self.img_after_path):
+            raise FileNotFoundError(f'Image (after) not found on path: {self.img_after_path}')
+        self.img_after = cv2.imread(self.img_after_path)
 
         self.out_dir = out_dir
         self.debug_mode = debug_mode
@@ -41,21 +31,15 @@ class ObjectDetection:
             if not os.path.exists(self.out_dir_ball):
                 os.makedirs(self.out_dir_ball)
 
-    def loadGridFromJson(self):
-        # Loads grid layout information from json data file and its corresponding data
-
-        with open(self.grid_path, "r") as f:
-            self.grid = json.load(f)
-
     def findAceHole(self):
         # Apply opencv masks for hole detection
         img = self.img_after.copy()
 
         # Crop image
-        x0 = self.grid['mask']['hole']['crop']['x0']
-        x1 = self.grid['mask']['hole']['crop']['x1']
-        y0 = self.grid['mask']['hole']['crop']['y0']
-        y1 = self.grid['mask']['hole']['crop']['y1']
+        x0 = self.gridlayout.layout['mask']['hole']['crop']['x0']
+        x1 = self.gridlayout.layout['mask']['hole']['crop']['x1']
+        y0 = self.gridlayout.layout['mask']['hole']['crop']['y0']
+        y1 = self.gridlayout.layout['mask']['hole']['crop']['y1']
 
         image_cropped = img[y0:y1, x0:x1]
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/0image_cropped.jpg", image_cropped)
@@ -138,10 +122,10 @@ class ObjectDetection:
         img_after = self.img_after.copy()
 
         # Crop before and after images
-        x0 = self.grid['mask']['ball']['crop']['x0']
-        x1 = self.grid['mask']['ball']['crop']['x1']
-        y0 = self.grid['mask']['ball']['crop']['y0']
-        y1 = self.grid['mask']['ball']['crop']['y1']
+        x0 = self.gridlayout.layout['mask']['ball']['crop']['x0']
+        x1 = self.gridlayout.layout['mask']['ball']['crop']['x1']
+        y0 = self.gridlayout.layout['mask']['ball']['crop']['y0']
+        y1 = self.gridlayout.layout['mask']['ball']['crop']['y1']
 
         img_after_cropped = img_after[y0:y1, x0:x1]
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/0image_after_cropped.jpg", img_after_cropped)
@@ -236,8 +220,8 @@ class ObjectDetection:
         cv_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/1gray.jpg", cv_gray)
 
-        thrld_min = self.grid['mask']['ball']['threshold']['min']
-        thrld_max = self.grid['mask']['ball']['threshold']['max']
+        thrld_min = self.gridlayout.layout['mask']['ball']['threshold']['min']
+        thrld_max = self.gridlayout.layout['mask']['ball']['threshold']['max']
         _, cv_thresh = cv2.threshold(cv_gray, thrld_min, thrld_max, cv2.THRESH_BINARY)
 
         # Remove small noise by filtering using contour area
@@ -247,7 +231,7 @@ class ObjectDetection:
         # If previous threshold detection didn't find any contours, try to lower
         # the threshold range
         if not cnts:
-            thrld_min_fallback = self.grid['mask']['ball']['threshold']['fallback']
+            thrld_min_fallback = self.gridlayout.layout['mask']['ball']['threshold']['fallback']
             _, cv_thresh = cv2.threshold(cv_gray, thrld_min_fallback, thrld_max, cv2.THRESH_BINARY)
 
         return cv_thresh

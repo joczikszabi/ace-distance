@@ -1,4 +1,5 @@
 import os
+from acedistance.main.Grid import GridLayout
 from acedistance.main.ObjectDetection import ObjectDetection
 
 
@@ -12,11 +13,13 @@ class BaseTestClass:
         img_before_path = os.path.join(self.data_dir, f'{testcase["img_name"]}-before.png')
         img_after_path = os.path.join(self.data_dir, f'{testcase["img_name"]}-after.png')
         output_path = os.path.join(self.out_dir, testcase['layout'], testcase['img_name'])
+        gridlayout = GridLayout(testcase['layout'])
 
-        det = ObjectDetection(img_before_path, img_after_path,
-                              debug_mode=True,
+        det = ObjectDetection(img_before_path=img_before_path,
+                              img_after_path=img_after_path,
+                              gridlayout=gridlayout,
                               out_dir=output_path,
-                              layout_name=testcase['layout'])
+                              debug_mode=True)
         return det
 
     def get_img_before_path(self, img_name):
