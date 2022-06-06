@@ -1,28 +1,31 @@
 import os
 import cv2
-import math
 import numpy as np
+from acedistance.main.constrains import withinFieldConstraint, strictlyWithinFieldConstraint, areaConstraint, \
+    dimensionConstraint, heightWidthRatioConstraint
 
 
 class ObjectDetection:
     def __init__(self, img_before_path, img_after_path, gridlayout, out_dir, debug_mode=False):
-        self.gridlayout = gridlayout
-
         self.img_before_path = img_before_path
+        self.img_after_path = img_after_path
+        self.gridlayout = gridlayout
+        self.out_dir = out_dir
+        self.debug_mode = debug_mode
+        self.n_masks_applied = 0
+        self.current_outdir = None
+
+        # Load before/after images
         if not os.path.isfile(self.img_before_path):
             raise FileNotFoundError(f'Image (before) not found on path: {self.img_before_path}')
         self.img_before = cv2.imread(self.img_before_path)
 
-        self.img_after_path = img_after_path
         if not os.path.isfile(self.img_after_path):
             raise FileNotFoundError(f'Image (after) not found on path: {self.img_after_path}')
         self.img_after = cv2.imread(self.img_after_path)
 
-        self.out_dir = out_dir
-        self.debug_mode = debug_mode
-
-        if debug_mode:
-            # Create directory for outputs
+        # Create folder for debug images
+        if self.debug_mode:
             self.out_dir_hole = f"{self.out_dir}/hole"
             if not os.path.exists(self.out_dir_hole):
                 os.makedirs(self.out_dir_hole)
@@ -32,206 +35,353 @@ class ObjectDetection:
                 os.makedirs(self.out_dir_ball)
 
     def findAceHole(self):
-        # Apply opencv masks for hole detection
+        """
+        Prepares the image and applies a range of masks in order to find the position of the golf hole.
+
+        Args:
+
+        Returns:
+            Bool: The position of the hole, None if not found
+        """
+
+        self.n_masks_applied = 0
         img = self.img_after.copy()
 
-        # Crop image
-        x0 = self.gridlayout.layout['mask']['hole']['crop']['x0']
-        x1 = self.gridlayout.layout['mask']['hole']['crop']['x1']
-        y0 = self.gridlayout.layout['mask']['hole']['crop']['y0']
-        y1 = self.gridlayout.layout['mask']['hole']['crop']['y1']
+        # Apply masks for object detection
+        img = self.applyGrayscale(img, out_dir=self.out_dir_hole)
+        img = self.applyErode(img, (5, 5), out_dir=self.out_dir_hole)
+        img = self.applyAdaptiveThreshold(img, 37, 10, out_dir=self.out_dir_hole)
+        img = self.applyMorphology(img, (1, 6), 2, out_dir=self.out_dir_hole)
+        img = self.applyDilate(img, (4, 2), out_dir=self.out_dir_hole)
 
-        image_cropped = img[y0:y1, x0:x1]
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/0image_cropped.jpg", image_cropped)
+        # Add constrains
+        img = self.constrain(
+            img=img,
+            c_functions=[
+                withinFieldConstraint,
+                areaConstraint,
+                heightWidthRatioConstraint
+            ],
+            params={
+                "field_border_points": self.gridlayout.layout['mask']['field_border'],
+                "min_area": 100,
+                "max_area": 1000,
+                "min_width": 10,
+                "max_width": 150,
+                "min_height": 100,
+                "max_height": 800,
+                "min_height_width_ratio": 2,
+                "max_height_width_ratio": 15
+            },
+            out_dir=self.out_dir_hole)
 
-        # Apply grayscale
-        cv_gray = cv2.cvtColor(image_cropped, cv2.COLOR_BGR2GRAY)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/1gray.jpg", cv_gray)
-
-        # Apply erode to strength contours
-        element = np.ones((5, 5))
-        cv_erode = cv2.erode(cv_gray, element)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/2erode.jpg", cv_erode)
-
-        # Threshold detection
-        cv_thresh = cv2.adaptiveThreshold(cv_erode, 255,
-                                          cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 37, 10)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/3tresh.jpg", cv_thresh)
-
-        # Remove small noise from image
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 6))
-        cv_opening = cv2.morphologyEx(cv_thresh, cv2.MORPH_OPEN, kernel, iterations=2)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/4morph.jpg", cv_opening)
-
-        # Apply dilate to connect broken white contours
-        element = np.ones((4, 2))
-        cv_dilate = cv2.dilate(cv_opening, element)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/5dilate.jpg", cv_dilate)
-
-        # Remove contours that are too small or too large
-        cnts = cv2.findContours(cv_dilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-
-        for c in cnts:
-            if cv2.contourArea(c) < 100:
-                cv2.drawContours(cv_dilate, [c], 0, (0, 0, 0), -1)
-
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/6contour.jpg", cv_dilate)
-
-        cv_contours, _ = cv2.findContours(cv_dilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        selected_contour = None
-        max_area = 0
-
-        for pic, contour in enumerate(cv_contours):
-            contour_np = np.asarray([[alma[0][0], alma[0][1]] for alma in contour])
-            area = cv2.contourArea(contour)
-
-            x_min = np.min(contour_np[:, 0])
-            x_max = np.max(contour_np[:, 0])
-            x_avg = np.mean(contour_np[:, 0])
-
-            y_min = np.min(contour_np[:, 1])
-            y_max = np.max(contour_np[:, 1])
-
-            # Too close to edge of the image, it cannot be the hole
-            img_height = y1 - y0
-            height_width_ratio = (y_max - y_min) / (x_max - x_min)
-            if (x_avg < 50 or x_avg > (x1 - 50) or y_min > img_height - 15 or height_width_ratio < 2):
-                if area > max_area:
-                    continue
-
-            if area > max_area:
-                selected_contour = contour
-                max_area = area
-
+        # Select largest contour on image
+        selected_contour = self.findContourWithLargestArea(img, lambda c: cv2.contourArea(c))
         if selected_contour is None:
             return None
 
-        cnt2 = np.asarray([[alma[0][0]+x0, alma[0][1] + y0] for alma in selected_contour])
-        y = max(cnt2[:, 1]) - 5
-        x = int(np.mean(np.array([v for v in cnt2 if v[1] == y])[:, 0]))
+        # Calculate final position of object, render it on image and return
+        y = max(selected_contour[:, 1])
+        x = int(np.mean(np.array([v for v in selected_contour if v[1] == y])[:, 0]))
 
-        # Draw the contour on the new mask and perform the bitwise operation
-        pos_ace_hole = (x, y)
-        img_result = cv2.circle(img, pos_ace_hole, 2, (0, 0, 255), 2)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_hole}/7result.jpg", img_result)
+        pos_ace_hole = (x, y - 5)
+        img_after_copy = self.img_after.copy()
+        img_result = cv2.circle(img_after_copy, pos_ace_hole, 2, (0, 0, 255), 2)
+
+        if self.debug_mode:
+            cv2.imwrite(f"{self.out_dir_hole}/{self.n_masks_applied}_result.jpg", img_result)
 
         return pos_ace_hole
 
     def findGolfBall(self):
+        """
+        Prepares the images and applies a range of masks in order to find the position of the golf ball.
+
+        Args:
+
+        Returns:
+            Bool: The position of the ball, None if not found
+        """
+
+        self.n_masks_applied = 0
+
+        # First make some copies
+        img_before = self.img_before.copy()
         img_after = self.img_after.copy()
 
-        # Crop before and after images
-        x0 = self.gridlayout.layout['mask']['ball']['crop']['x0']
-        x1 = self.gridlayout.layout['mask']['ball']['crop']['x1']
-        y0 = self.gridlayout.layout['mask']['ball']['crop']['y0']
-        y1 = self.gridlayout.layout['mask']['ball']['crop']['y1']
+        # Prepare before image
+        img_before = self.applyGrayscale(img_before, out_dir=self.out_dir_ball)
+        img_before = self.applyBitwiseNot(img_before, out_dir=self.out_dir_ball)
+        img_before = self.applyAdaptiveThreshold(img_before, 21, 60, out_dir=self.out_dir_ball)
+        img_before = self.applyDilate(img_before, (4, 4), out_dir=self.out_dir_ball)
 
-        img_after_cropped = img_after[y0:y1, x0:x1]
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/0image_after_cropped.jpg", img_after_cropped)
+        # Prepare after image
+        img_after = self.applyGrayscale(img_after, out_dir=self.out_dir_ball)
+        img_after = self.applyBitwiseNot(img_after, out_dir=self.out_dir_ball)
+        img_after = self.applyAdaptiveThreshold(img_after, 21, 60, out_dir=self.out_dir_ball)
+        img_after = self.applyDilate(img_after, (3, 2), out_dir=self.out_dir_ball)
 
-        img_before = self.img_before.copy()
-        img_before_cropped = img_before[y0:y1, x0:x1]
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/0image_before_cropped.jpg", img_before_cropped)
+        img = self.applySubtract(img_before, img_after, out_dir=self.out_dir_ball)
+        img = self.applyMorphology(img, (2, 2), 1, out_dir=self.out_dir_ball)
 
-        # Get contours and subtract the contours from the before image
-        contours_before = self.getContoursForBall(img_before_cropped)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3a_contours_before.jpg", contours_before)
+        # Apply constrains
+        constraint_params = {
+            "field_border_points": self.gridlayout.layout['mask']['field_border'],
+            "min_area": 2,
+            "max_area": 50,
+            "min_width": 1,
+            "max_width": 25,
+            "min_height": 1,
+            "max_height": 25,
+            "min_height_width_ratio": 0.85,
+            "max_height_width_ratio": 1.15
+        }
 
-        # Enlarge found contours on before image for subtraction
-        element = np.ones((4, 4))
-        contours_before_dilate = cv2.dilate(contours_before, element)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3a_contours_before_dilate.jpg", contours_before_dilate)
+        img = self.constrain(img=img,
+                             c_functions=[
+                             strictlyWithinFieldConstraint,
+                             areaConstraint,
+                             dimensionConstraint
+                         ],
+                             params=constraint_params,
+                             out_dir=self.out_dir_ball)
 
-        contours_after = self.getContoursForBall(img_after_cropped)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3b_contours_after.jpg", contours_after)
+        # Select largest contour on image
+        selected_contour = self.findContourWithLargestArea(img, lambda c: cv2.minEnclosingCircle(c)[1])
+        if selected_contour is None:
+            return None
 
-        # Enlarge found contours on after image for subtraction (not as much as on the before image)
-        element = np.ones((3, 2))
-        contours_after_dilate = cv2.dilate(contours_after, element)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3b_contours_after_dilate.jpg", contours_after_dilate)
+        # Calculate final position of object, render it on image and return
+        x = int(np.ceil(np.mean(selected_contour[:, 0])))
+        y = int(np.ceil(np.mean(selected_contour[:, 1])))
+        pos_ball = (x, y)
 
-        contours = cv2.subtract(contours_after_dilate, contours_before_dilate)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/3c_contours_substract.jpg", contours)
+        img_after_copy = self.img_after.copy()
+        img_result = cv2.circle(img_after_copy, pos_ball, 2, (0, 0, 255), 2)
 
-        # Apply morphology for cleaning up noise
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-        cv_opening = cv2.morphologyEx(contours, cv2.MORPH_OPEN, kernel, iterations=1)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/4morph.jpg", cv_opening)
+        if self.debug_mode:
+            cv2.imwrite(f"{self.out_dir_ball}/{self.n_masks_applied}_result.jpg", img_result)
 
-        # Remove small noise by removing contours with too large or small area
-        cnts = cv2.findContours(cv_opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+        return pos_ball
+
+    def constrain(self, img, c_functions, params, out_dir):
+        """
+        Applies an array of constraint functions on the detected contours and discards the ones on the image
+        that do not pass all the functions.
+
+        Args:
+            img (np.array): List of points defining contours returned from cv2
+            c_functions ([functions]): Array of constraint functions that should be checked for each contour
+            params (dict): Dictionary of parameters for the constraint functions (the necessary parameters are unpacked)
+            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+
+        Returns:
+            Bool: Returns image where those contours that did not pass all restrictions are removed
+        """
+
+        cnts, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         for c in cnts:
-            contour_np = np.asarray([[cc[0][0], cc[0][1]] for cc in c])
-            x_min = np.min(contour_np[:, 0])
-            x_max = np.max(contour_np[:, 0])
-            x_avg = np.mean(contour_np[:, 0])
+            if not np.array([f(c, **params) for f in c_functions]).all():
+                cv2.drawContours(img, [c], 0, (0, 0, 0), -1)
 
-            y_min = np.min(contour_np[:, 1])
-            y_max = np.max(contour_np[:, 1])
-            y_avg = np.mean(contour_np[:, 1])
+        if self.debug_mode:
+            cv2.imwrite(f"{out_dir}/{self.n_masks_applied}_constrains.jpg", img)
+            self.n_masks_applied += 1
 
-            if cv2.contourArea(c) < 3 or cv2.contourArea(c) > 30 or abs(y_min - y_max) > 10 or abs(x_min - x_max) > 10 \
-                    or x_avg < 100 or y_avg < 5:
-                cv2.drawContours(cv_opening, [c], 0, (0, 0, 0), -1)
+        return img
 
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/5contour.jpg", cv_opening)
+    def applyGrayscale(self, img, out_dir=None):
+        """
+        Applies grayscale on the given image.
 
-        # --------------------------------------------------------------------
-        # brief: The algorithm chooses the contour with the largest area
+        Args:
+            img ([np.array]): cv2 image on which the function should be applied
+            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
 
-        # TODO: Compare the after image with the before one, substract the
-        #       similarities i.e previous golf ball, stationary noise etc. and
-        #       find the contour with the largest area
+        Returns:
+            Bool: Returns the original image with grayscale applied on it
+        """
 
-        contours, hierarchy = cv2.findContours(cv_opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        img_copy = img.copy()
+        img_new = cv2.cvtColor(img_copy, cv2.COLOR_BGR2GRAY)
+
+        if self.debug_mode:
+            cv2.imwrite(f"{out_dir}/{self.n_masks_applied}_grayscale.jpg", img_new)
+            self.n_masks_applied += 1
+
+        return img_new
+
+    def applyBitwiseNot(self, img, out_dir=None):
+        """
+        Applies bitwise not on the given image (inverting the colors).
+
+        Args:
+            img ([np.array]): cv2 image on which the function should be applied
+            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+
+        Returns:
+            Bool: Returns the original image with inverted colors
+        """
+
+        img_copy = img.copy()
+        img_new = cv2.bitwise_not(img_copy)
+
+        if self.debug_mode:
+            cv2.imwrite(f"{out_dir}/{self.n_masks_applied}_bitwise_not.jpg", img_new)
+            self.n_masks_applied += 1
+
+        return img_new
+
+    def applyErode(self, img, ksize, out_dir=None):
+        """
+        Applies erode on the given image in order to strengthen contours.
+
+        Args:
+            img ([np.array]): cv2 image on which the function should be applied
+            ksize (tuple): Size of the kernel which should be used in the dilate function
+            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+
+        Returns:
+            Bool: Returns the original image with erode applied on it
+        """
+
+        img_copy = img.copy()
+
+        kernel = np.ones(ksize)
+        img_new = cv2.erode(img_copy, kernel)
+
+        if self.debug_mode:
+            cv2.imwrite(f"{out_dir}/{self.n_masks_applied}_erode.jpg", img_new)
+            self.n_masks_applied += 1
+
+        return img_new
+
+    def applyAdaptiveThreshold(self, img, blockSize=21, C=60, maxValue=255, out_dir=None):
+        """
+        Applies adaptive threshold detection on the given image in order to find contours.
+
+        Args:
+            img ([np.array]): cv2 image on which the function should be applied
+            blockSize (Int):
+            C (Int):
+            maxValue (Int):
+             out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+
+        Returns:
+            Bool: Returns the original image with adaptive threshold detection applied on it
+        """
+
+        img_copy = img.copy()
+        img_new = cv2.adaptiveThreshold(img_copy, maxValue,
+                                        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                        cv2.THRESH_BINARY_INV, blockSize, C)
+
+        if self.debug_mode:
+            cv2.imwrite(f"{out_dir}/{self.n_masks_applied}_adaptive_threshold.jpg", img_new)
+            self.n_masks_applied += 1
+
+        return img_new
+
+    def applyDilate(self, img, ksize, out_dir=None):
+        """
+        Applies dilate on the given image in order to strengthen and connect close contours.
+
+        Args:
+            img ([np.array]): cv2 image on which the function should be applied
+            ksize (tuple): Size of the kernel which should be used in the dilate function
+            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+
+        Returns:
+            Bool: Returns the original image with dilate applied on it
+        """
+
+        img_copy = img.copy()
+
+        kernel = np.ones(ksize)
+        img_new = cv2.dilate(img_copy, kernel)
+
+        if self.debug_mode:
+            cv2.imwrite(f"{out_dir}/{self.n_masks_applied}_dilate.jpg", img_new)
+            self.n_masks_applied += 1
+
+        return img_new
+
+    def applySubtract(self, img_before, img_after, out_dir=None):
+        """
+        Applies subtraction on the given images in order to remove static elements and noise.
+
+        Args:
+            img_before ([np.array]): cv2 image taken before shooting the golf ball
+            img_after ([np.array]): cv2 image taken after shooting the golf ball
+            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+
+        Returns:
+            Bool: Returns an image with contours that are only apparent on the after image and not on the before one
+        """
+
+        img_before_copy = img_before.copy()
+        img_after_copy = img_after.copy()
+
+        img_new = cv2.subtract(img_after_copy, img_before_copy)
+
+        if self.debug_mode:
+            cv2.imwrite(f"{out_dir}/{self.n_masks_applied}_subtract.jpg", img_new)
+            self.n_masks_applied += 1
+
+        return img_new
+
+    def applyMorphology(self, img, ksize, iterations, out_dir=None):
+        """
+        Applies morphology on the given image in order to remove unnecessary noise.
+
+        Args:
+            img ([np.array]): cv2 image on which the function should be applied
+            ksize (tuple): Size of the kernel which should be used in the dilate function
+            iterations (Int):
+            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+
+        Returns:
+            Bool: Returns the original image with morphology applied on it
+        """
+
+        img_copy = img.copy()
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize)
+        img_new = cv2.morphologyEx(img_copy, cv2.MORPH_OPEN, kernel, iterations=iterations)
+
+        if self.debug_mode:
+            cv2.imwrite(f"{out_dir}/{self.n_masks_applied}_morphology.jpg", img_new)
+            self.n_masks_applied += 1
+
+        return img_new
+
+    def findContourWithLargestArea(self, img, func):
+        """
+        Finds contour in cnts with the largest area, the metrics for calculating
+        the size of a contour is defined by func.
+
+        Args:
+            img ([np.array]): cv2 image on which the function should be applied
+            func (func): Function for calculating the size of the contour
+
+        Returns:
+            Bool: Returns the contour with the largest size.
+        """
+
+        img_copy = img.copy()
+
+        cnts, _ = cv2.findContours(img_copy, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
         selected_contour = None
-        max_area = 0
+        max_size = 0
 
-        for _, contour in enumerate(contours):
-            _, radius = cv2.minEnclosingCircle(contour)
-            area = math.pi * radius
+        for c in cnts:
+            c = np.squeeze(c)
+            size = func(c)
 
-            if area > max_area:
-                selected_contour = contour
-                max_area = area
+            if size > max_size:
+                selected_contour = c
+                max_size = size
 
-        # --------------------------------------------------------------------
-
-        # Create a new mask for the result image
-        if selected_contour is not None:
-            cnt2 = np.asarray([[c[0][0] + x0, c[0][1] + y0] for c in selected_contour])
-            x = int(np.ceil(np.mean(cnt2[:, 0])))
-            y = int(np.ceil(np.mean(cnt2[:, 1])))
-
-            # Draw the contour on the new mask and perform the bitwise operation
-            # res = cv2.drawContours(image, [cnt2],-1, 255, -1)
-            pos_ball = (x, y)
-            img_result = cv2.circle(img_after, pos_ball, 2, (0, 0, 255), 2)
-            if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/6result.jpg", img_result)
-
-            return pos_ball
-
-        return None
-
-    def getContoursForBall(self, img):
-        cv_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        if self.debug_mode: cv2.imwrite(f"{self.out_dir_ball}/1gray.jpg", cv_gray)
-
-        thrld_min = self.gridlayout.layout['mask']['ball']['threshold']['min']
-        thrld_max = self.gridlayout.layout['mask']['ball']['threshold']['max']
-        _, cv_thresh = cv2.threshold(cv_gray, thrld_min, thrld_max, cv2.THRESH_BINARY)
-
-        # Remove small noise by filtering using contour area
-        cnts = cv2.findContours(cv_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-
-        # If previous threshold detection didn't find any contours, try to lower
-        # the threshold range
-        if not cnts:
-            thrld_min_fallback = self.gridlayout.layout['mask']['ball']['threshold']['fallback']
-            _, cv_thresh = cv2.threshold(cv_gray, thrld_min_fallback, thrld_max, cv2.THRESH_BINARY)
-
-        return cv_thresh
+        return selected_contour
