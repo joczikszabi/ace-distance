@@ -4,12 +4,12 @@
 # Recordings
 recordings/
 dataset/
+benchmark/
 
 # Cache files/folders
 **/.pytest_cache
 **/__pycache__/
 *.pyc
-
 
 # IDE
 .idea/

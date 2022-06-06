@@ -4,7 +4,7 @@
       "img_name": "699",
       "layout": "layout1",
       "is_hole_detected": true,
-      "is_ball_detected": false
+      "is_ball_detected": true
     },
     {
       "img_name": "708",
@@ -16,7 +16,7 @@
       "img_name": "715",
       "layout": "layout1",
       "is_hole_detected": true,
-      "is_ball_detected": true
+      "is_ball_detected": false
     },
     {
       "img_name": "753",
