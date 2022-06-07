@@ -178,8 +178,6 @@ class ObjectDetection:
         cnts, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         for c in cnts:
-            if np.array_equal(np.squeeze(c), np.array([[526, 404], [526, 409], [527, 409], [527, 404]])):
-                alma = 2
             if not np.array([f(c, **params) for f in c_functions]).all():
                 cv2.drawContours(img, [c], 0, (0, 0, 0), -1)
 

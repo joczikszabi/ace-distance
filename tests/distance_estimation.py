@@ -23,7 +23,7 @@ def click_event(event, x, y, flags, params):
 
         else:
             # displaying the coordinates on the shell and image
-            dist = round(estimator.estimateDistance((x, y), hole_coordinates, img), 2)
+            dist = round(estimator.estimateDistance((x, y), hole_coordinates), 2)
 
             print(f"Golf ball located at pixel coordinates: ({x}, {y})")
             print(f"Estimated distance between ball and hole: {dist} meter(s)\n")
