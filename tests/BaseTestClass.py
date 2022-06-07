@@ -1,6 +1,7 @@
 import os
 from acedistance.main.Grid import GridLayout
 from acedistance.main.ObjectDetection import ObjectDetection
+from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
 class BaseTestClass:
@@ -21,6 +22,12 @@ class BaseTestClass:
                               out_dir=output_path,
                               debug_mode=True)
         return det
+
+    def get_distance_estimation_object(self, layout):
+        gridlayout = GridLayout(layout)
+        estimator = DistanceEstimation(gridlayout=gridlayout)
+
+        return estimator
 
     def get_img_before_path(self, img_name):
         return os.path.join(self.data_dir, f'{img_name}-before.png')

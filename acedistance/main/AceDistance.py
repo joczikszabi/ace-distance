@@ -9,7 +9,7 @@ from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
 class AceDistance:
-    def __init__(self, img_before_path, img_after_path, out_dir=None, layout_name=None, debug_mode=None):
+    def __init__(self, img_before_path, img_after_path, out_dir=None, layout_name=None, debug_mode=False):
         configParser = loadConfig()
 
         self.img_before_path = img_before_path
@@ -18,7 +18,7 @@ class AceDistance:
         self.result_img_path = f'{self.out_dir}/result.jpg'
         self.result_json_path = f'{self.out_dir}/result.json'
         self.layout_name = layout_name if layout_name else configParser['GRID']['LAYOUT_NAME']
-        self.debug_mode = debug_mode if debug_mode else bool(int(configParser['PROGRAM']['DEBUG_MODE']))
+        self.debug_mode = debug_mode
 
         # Properties needed for result
         self.version = configParser['PROGRAM']['VERSION']
@@ -29,6 +29,15 @@ class AceDistance:
         self.gridlayout = GridLayout(self.layout_name)
 
     def run(self):
+        """
+        Main script that sets up the workflow, connects the different steps (object detection, distance estimation, etc.),
+        handles errors and exports output.
+
+        Args:
+
+        Returns:
+        """
+
         if not os.path.isfile(self.img_before_path):
             self.error = f'Image (before) not found on path: {self.img_before_path}'
             self.emitAndSaveOutput()
@@ -52,6 +61,14 @@ class AceDistance:
         self.emitAndSaveOutput()
 
     def runObjectDetection(self):
+        """
+        Wrapper for the object detection algorithm.
+
+        Args:
+
+        Returns:
+        """
+
         det = ObjectDetection(img_before_path=self.img_before_path,
                               img_after_path=self.img_after_path,
                               gridlayout=self.gridlayout,
@@ -61,10 +78,27 @@ class AceDistance:
         self.pos_ball = det.findGolfBall()
 
     def runDistanceEstimation(self):
+        """
+        Wrapper for the distance estimation algorithm.
+
+        Args:
+
+        Returns:
+        """
+
         estimator = DistanceEstimation(gridlayout=self.gridlayout)
-        self.distance = estimator.estimateDistance(self.pos_hole, self.pos_ball, cv2.imread(self.img_after_path))
+        self.distance = estimator.estimateDistance(coordinate_hole=self.pos_hole, coordinate_ball=self.pos_ball)
 
     def defaultOutput(self):
+        """
+        Defines and returns the default output format.
+
+        Args:
+
+        Returns:
+            Output of the ace-distance algorithm
+        """
+
         output = {
             "version": self.version,
             "distance": self.distance,
@@ -80,6 +114,15 @@ class AceDistance:
         return output
 
     def saveResultImage(self):
+        """
+        Renders the coordinates of the golf hole and ball on the image along with the distance between them
+        and exports the image.
+
+        Args:
+
+        Returns:
+        """
+
         img = cv2.imread(self.img_after_path)
         cv2.line(img, self.pos_ball, self.pos_hole, (255, 0, 0), 1)
 
@@ -96,6 +139,15 @@ class AceDistance:
         cv2.imwrite(self.result_img_path, img)
 
     def emitAndSaveOutput(self):
+        """
+        Wrapper for exporting the ace-distance output in a json form (and prints it on the terminal as the backend
+        listens to it)
+
+        Args:
+
+        Returns:
+        """
+
         output = self.defaultOutput()
         output_json = json.dumps(output)
 
@@ -105,6 +157,5 @@ class AceDistance:
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
 
-        # Save json for logging purposes
         with open(self.result_json_path, 'w') as f:
             json.dump(output, f)
