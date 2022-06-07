@@ -28,6 +28,9 @@ class AceDistance:
         self.error = ''
         self.gridlayout = GridLayout(self.layout_name)
 
+        if not os.path.exists(self.out_dir):
+            os.makedirs(self.out_dir)
+
     def run(self):
         """
         Main script that sets up the workflow, connects the different steps (object detection, distance estimation, etc.),
@@ -153,9 +156,6 @@ class AceDistance:
 
         # Print out result (endpoint is listening to the printed output)
         print(output_json)
-
-        if not os.path.exists(self.out_dir):
-            os.makedirs(self.out_dir)
 
         with open(self.result_json_path, 'w') as f:
             json.dump(output, f)
