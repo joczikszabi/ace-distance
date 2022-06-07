@@ -24,6 +24,8 @@ class AceDistance:
         self.version = configParser['PROGRAM']['VERSION']
         self.pos_hole = None
         self.pos_ball = None
+        self.is_hole_detected = None
+        self.is_ball_detected = None
         self.distance = None
         self.error = ''
         self.gridlayout = GridLayout(self.layout_name)
@@ -77,8 +79,12 @@ class AceDistance:
                               gridlayout=self.gridlayout,
                               out_dir=self.out_dir,
                               debug_mode=self.debug_mode)
+
         self.pos_hole = det.findAceHole()
+        self.is_hole_detected = self.pos_hole is not None
+
         self.pos_ball = det.findGolfBall()
+        self.is_ball_detected = self.pos_ball is not None
 
     def runDistanceEstimation(self):
         """
@@ -106,8 +112,8 @@ class AceDistance:
             "version": self.version,
             "distance": self.distance,
             "layout_name": self.layout_name,
-            "is_hole_detected": self.pos_hole is not None,
-            "is_ball_detected": self.pos_ball is not None,
+            "is_hole_detected": self.is_hole_detected,
+            "is_ball_detected": self.is_ball_detected,
             "results_path": self.result_img_path,
             "img_before_path": self.img_before_path,
             "img_after_path": self.img_after_path,
