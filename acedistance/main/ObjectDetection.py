@@ -8,29 +8,22 @@ from acedistance.main.constrains import withinFieldConstraint, strictlyWithinFie
 class ObjectDetection:
     def __init__(self, img_before_path, img_after_path, gridlayout, out_dir, debug_mode=False):
         self.img_before_path = img_before_path
+        self.img_before = cv2.imread(self.img_before_path)
         self.img_after_path = img_after_path
+        self.img_after = cv2.imread(self.img_after_path)
         self.gridlayout = gridlayout
         self.out_dir = out_dir
         self.debug_mode = debug_mode
         self.n_masks_applied = 0
         self.current_outdir = None
 
-        # Load before/after images
-        if not os.path.isfile(self.img_before_path):
-            raise FileNotFoundError(f'Image (before) not found on path: {self.img_before_path}')
-        self.img_before = cv2.imread(self.img_before_path)
-
-        if not os.path.isfile(self.img_after_path):
-            raise FileNotFoundError(f'Image (after) not found on path: {self.img_after_path}')
-        self.img_after = cv2.imread(self.img_after_path)
-
         # Create folder for debug images
+        self.out_dir_hole = f"{self.out_dir}/hole"
+        self.out_dir_ball = f'{self.out_dir}/ball'
         if self.debug_mode:
-            self.out_dir_hole = f"{self.out_dir}/hole"
             if not os.path.exists(self.out_dir_hole):
                 os.makedirs(self.out_dir_hole)
 
-            self.out_dir_ball = f'{self.out_dir}/ball'
             if not os.path.exists(self.out_dir_ball):
                 os.makedirs(self.out_dir_ball)
 
@@ -84,6 +77,8 @@ class ObjectDetection:
         y = max(selected_contour[:, 1])
         x = int(np.mean(np.array([v for v in selected_contour if v[1] == y])[:, 0]))
 
+        heightWidthRatioConstraint(selected_contour, min_height_width_ratio=4, max_height_width_ratio=15)
+
         pos_ace_hole = (x, y - 5)
         img_after_copy = self.img_after.copy()
         img_result = cv2.circle(img_after_copy, pos_ace_hole, 2, (0, 0, 255), 2)
@@ -112,13 +107,13 @@ class ObjectDetection:
         # Prepare before image
         img_before = self.applyGrayscale(img_before, out_dir=self.out_dir_ball)
         img_before = self.applyBitwiseNot(img_before, out_dir=self.out_dir_ball)
-        img_before = self.applyAdaptiveThreshold(img_before, 21, 60, out_dir=self.out_dir_ball)
+        img_before = self.applyAdaptiveThreshold(img_before, 21, 50, out_dir=self.out_dir_ball)
         img_before = self.applyDilate(img_before, (4, 4), out_dir=self.out_dir_ball)
 
         # Prepare after image
         img_after = self.applyGrayscale(img_after, out_dir=self.out_dir_ball)
         img_after = self.applyBitwiseNot(img_after, out_dir=self.out_dir_ball)
-        img_after = self.applyAdaptiveThreshold(img_after, 21, 60, out_dir=self.out_dir_ball)
+        img_after = self.applyAdaptiveThreshold(img_after, 21, 50, out_dir=self.out_dir_ball)
         img_after = self.applyDilate(img_after, (3, 2), out_dir=self.out_dir_ball)
 
         img = self.applySubtract(img_before, img_after, out_dir=self.out_dir_ball)
@@ -127,22 +122,23 @@ class ObjectDetection:
         # Apply constrains
         constraint_params = {
             "field_border_points": self.gridlayout.layout['mask']['field_border'],
-            "min_area": 2,
-            "max_area": 50,
+            "min_area": 1,
+            "max_area": 40,
             "min_width": 1,
             "max_width": 25,
             "min_height": 1,
             "max_height": 25,
-            "min_height_width_ratio": 0.85,
-            "max_height_width_ratio": 1.15
+            "min_height_width_ratio": 0.5,
+            "max_height_width_ratio": 1.5
         }
 
         img = self.constrain(img=img,
                              c_functions=[
-                             strictlyWithinFieldConstraint,
-                             areaConstraint,
-                             dimensionConstraint
-                         ],
+                                 strictlyWithinFieldConstraint,
+                                 areaConstraint,
+                                 dimensionConstraint,
+                                 heightWidthRatioConstraint
+                             ],
                              params=constraint_params,
                              out_dir=self.out_dir_ball)
 
@@ -182,6 +178,8 @@ class ObjectDetection:
         cnts, _ = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         for c in cnts:
+            if np.array_equal(np.squeeze(c), np.array([[526, 404], [526, 409], [527, 409], [527, 404]])):
+                alma = 2
             if not np.array([f(c, **params) for f in c_functions]).all():
                 cv2.drawContours(img, [c], 0, (0, 0, 0), -1)
 
@@ -257,16 +255,16 @@ class ObjectDetection:
 
         return img_new
 
-    def applyAdaptiveThreshold(self, img, blockSize=21, C=60, maxValue=255, out_dir=None):
+    def applyAdaptiveThreshold(self, img, blockSize, C, maxValue=255, out_dir=None):
         """
         Applies adaptive threshold detection on the given image in order to find contours.
 
         Args:
             img ([np.array]): cv2 image on which the function should be applied
-            blockSize (Int):
-            C (Int):
-            maxValue (Int):
-             out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            blockSize (Int): cv2 adaptiveThreshold parameter
+            C (Int): cv2 adaptiveThreshold parameter
+            maxValue (Int): cv2 adaptiveThreshold parameter
+            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns the original image with adaptive threshold detection applied on it
