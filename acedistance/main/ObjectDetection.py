@@ -107,13 +107,13 @@ class ObjectDetection:
         # Prepare before image
         img_before = self.applyGrayscale(img_before, out_dir=self.out_dir_ball)
         img_before = self.applyBitwiseNot(img_before, out_dir=self.out_dir_ball)
-        img_before = self.applyAdaptiveThreshold(img_before, 21, 50, out_dir=self.out_dir_ball)
+        img_before = self.applyAdaptiveThreshold(img_before, 15, 30, out_dir=self.out_dir_ball)
         img_before = self.applyDilate(img_before, (4, 4), out_dir=self.out_dir_ball)
 
         # Prepare after image
         img_after = self.applyGrayscale(img_after, out_dir=self.out_dir_ball)
         img_after = self.applyBitwiseNot(img_after, out_dir=self.out_dir_ball)
-        img_after = self.applyAdaptiveThreshold(img_after, 21, 50, out_dir=self.out_dir_ball)
+        img_after = self.applyAdaptiveThreshold(img_after, 15, 47, out_dir=self.out_dir_ball)
         img_after = self.applyDilate(img_after, (3, 2), out_dir=self.out_dir_ball)
 
         img = self.applySubtract(img_before, img_after, out_dir=self.out_dir_ball)
@@ -129,7 +129,7 @@ class ObjectDetection:
             "min_height": 1,
             "max_height": 25,
             "min_height_width_ratio": 0.5,
-            "max_height_width_ratio": 1.5
+            "max_height_width_ratio": 1.67
         }
 
         img = self.constrain(img=img,

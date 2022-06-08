@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from shapely.geos import TopologicalError
 from shapely.geometry.polygon import Polygon
 
 
@@ -25,7 +26,12 @@ def crossesFieldConstraint(contour, field_border_points, **_):
     contour = np.squeeze(contour)
     polygon = Polygon(contour)
 
-    return polygon.intersects(valid_area)
+    try:
+        return polygon.intersects(valid_area)
+
+    except TopologicalError:
+        # Likely cause is invalidity of the geometry
+        return False
 
 
 def strictlyWithinFieldConstraint(contour, field_border_points, **_):
@@ -53,7 +59,11 @@ def strictlyWithinFieldConstraint(contour, field_border_points, **_):
     contour = np.squeeze(contour)
     polygon = Polygon(contour)
 
-    return valid_area.covers(polygon)
+    try:
+        return valid_area.covers(polygon)
+    except TopologicalError:
+        # Likely cause is invalidity of the geometry
+        return False
 
 
 def withinFieldConstraint(contour, field_border_points, **_):
@@ -72,7 +82,8 @@ def withinFieldConstraint(contour, field_border_points, **_):
         Bool: Returns True if contour is within the green area or intersects it, False otherwise.
     """
 
-    return strictlyWithinFieldConstraint(contour, field_border_points) or crossesFieldConstraint(contour, field_border_points)
+    return strictlyWithinFieldConstraint(contour, field_border_points) or crossesFieldConstraint(contour,
+                                                                                                 field_border_points)
 
 
 def areaConstraint(contour, min_area=2, max_area=1000, **_):
