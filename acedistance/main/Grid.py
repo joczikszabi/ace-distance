@@ -1,4 +1,3 @@
-import os
 import numpy as np
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
@@ -7,12 +6,8 @@ from acedistance.helpers.load import loadLayout
 
 class GridLayout:
     def __init__(self, layout_name):
-        self.grid_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{layout_name}', 'grid.json')
-        if not os.path.isfile(self.grid_path):
-            raise FileNotFoundError(f'Layout definition file not found: {self.grid_path}')
-
-        self.layout = loadLayout(self.grid_path)
-
+        self.layout_name = layout_name
+        self.layout = loadLayout(self.layout_name)
         self.cells = []
         self._setGridCells()
 

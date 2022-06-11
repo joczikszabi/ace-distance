@@ -1,220 +1,256 @@
 {
   "test_cases": [
     {
-      "img_name": "699",
-      "layout": "layout1",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "708",
-      "layout": "layout1",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "715",
-      "layout": "layout1",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "753",
-      "layout": "layout1",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "763",
-      "layout": "layout1",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "768",
-      "layout": "layout1",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "770",
-      "layout": "layout1",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "test1",
+      "img_name": "aa3ede9e-c87e-4a3a-8fd5-7514dd8587ec",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "test2",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "test3",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "test5",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "test6",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "test7",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "test8",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "test9",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "test10",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "05a8f24c-886d-4def-869b-91877b43e525",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "78f5d046-8b3b-4ab4-844a-29f4bde7e390",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "88d80b46-fd4e-4a1d-a1a0-0b74ed48faeb",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "149d3433-646b-47df-8b8f-f08d7b43cf6f",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "411f6b4d-6e38-450b-be2b-5a2143d875ba",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "581d50d3-af5c-48a2-8474-0fa724e627eb",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "d08aee79-9aa1-40e8-a60f-05f8cf91eae3",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "fa8bd53e-e028-48ae-8419-bd5ea6909ceb",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "ac91d0d0-4030-4a8d-80f4-6ea220b39c6e",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "426c7415-ace7-421b-92a6-d4f640a6b156",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "343fe90f-8963-4117-b700-20b8a5dde9c3",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
-    },
-    {
-      "img_name": "6154d692-a482-490a-803e-a1e5d1b2e33c",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
-    },
-    {
-      "img_name": "31da41b5-6895-4c78-bd7b-2b767d99befa",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
+      "hole_position": [1602, 469],
+      "ball_position": []
     },
     {
       "img_name": "4b4e582a-460a-46c6-a5a3-a3ed59e54152",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
+      "hole_position": [1686, 469],
+      "ball_position": [1913, 481]
+    },
+    {
+      "img_name": "699",
+      "layout": "layout1",
+      "hole_position": [1587, 528],
+      "ball_position": []
     },
     {
       "img_name": "73e123f5-fc30-4c04-b564-6a252b23aead",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
+      "hole_position": [544, 415],
+      "ball_position": []
+    },
+    {
+      "img_name": "test6",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [223, 480],
+      "ball_position": []
+    },
+    {
+      "img_name": "88d80b46-fd4e-4a1d-a1a0-0b74ed48faeb",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1174, 420],
+      "ball_position": [1159, 419]
+    },
+    {
+      "img_name": "581d50d3-af5c-48a2-8474-0fa724e627eb",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1174, 417],
+      "ball_position": [1421, 463]
+    },
+    {
+      "img_name": "05a8f24c-886d-4def-869b-91877b43e525",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1176, 418],
+      "ball_position": []
+    },
+    {
+      "img_name": "d08aee79-9aa1-40e8-a60f-05f8cf91eae3",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1177, 420],
+      "ball_position": []
+    },
+    {
+      "img_name": "6154d692-a482-490a-803e-a1e5d1b2e33c",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [530, 474],
+      "ball_position": [1803, 462]
+    },
+    {
+      "img_name": "fa8bd53e-e028-48ae-8419-bd5ea6909ceb",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1175, 419],
+      "ball_position": [1023, 414]
+    },
+    {
+      "img_name": "cb857039-e0b1-4973-84bf-1b33e4d8a6ec",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1605, 469],
+      "ball_position": [1465, 442]
     },
     {
       "img_name": "74f5b1eb-32da-426a-bd6a-d7c41829b007",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
+      "hole_position": [1738, 450],
+      "ball_position": []
     },
     {
-      "img_name": "b8572a39-92df-4f9d-8ef4-99edeee3e928",
+      "img_name": "test7",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": true
+      "hole_position": [221, 482],
+      "ball_position": [139, 476]
     },
     {
-      "img_name": "340efbe5-3015-48e0-bf51-fa16025b0f0b",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
+      "img_name": "753",
+      "layout": "layout1",
+      "hole_position": [924, 669],
+      "ball_position": []
     },
     {
-      "img_name": "aa3ede9e-c87e-4a3a-8fd5-7514dd8587ec",
+      "img_name": "31da41b5-6895-4c78-bd7b-2b767d99befa",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
+      "hole_position": [529, 472],
+      "ball_position": []
+    },
+    {
+      "img_name": "708",
+      "layout": "layout1",
+      "hole_position": [1068, 541],
+      "ball_position": [695, 561]
+    },
+    {
+      "img_name": "541a2b79-0d23-44ec-b576-fd9e1f19b20b",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1603, 471],
+      "ball_position": [1295, 460]
+    },
+    {
+      "img_name": "test1",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1534, 416],
+      "ball_position": [1530, 467]
+    },
+    {
+      "img_name": "1afde4c0-a216-4504-838f-314e32f615ec",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1601, 468],
+      "ball_position": [1637, 473]
+    },
+    {
+      "img_name": "test9",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [222, 481],
+      "ball_position": [145, 564]
     },
     {
       "img_name": "e2a30972-6889-426a-9bae-24560db7c1e3",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "is_hole_detected": true,
-      "is_ball_detected": false
+      "hole_position": [797, 417],
+      "ball_position": []
+    },
+    {
+      "img_name": "763",
+      "layout": "layout1",
+      "hole_position": [940, 542],
+      "ball_position": [672, 597]
+    },
+    {
+      "img_name": "test4",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [597, 401],
+      "ball_position": [922, 424]
+    },
+    {
+      "img_name": "426c7415-ace7-421b-92a6-d4f640a6b156",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [530, 467],
+      "ball_position": [1551, 422]
+    },
+    {
+      "img_name": "768",
+      "layout": "layout1",
+      "hole_position": [939, 543],
+      "ball_position": [1289, 577]
+    },
+    {
+      "img_name": "411f6b4d-6e38-450b-be2b-5a2143d875ba",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1177, 417],
+      "ball_position": [1017, 417]
+    },
+    {
+      "img_name": "343fe90f-8963-4117-b700-20b8a5dde9c3",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [527, 469],
+      "ball_position": []
+    },
+    {
+      "img_name": "test2",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [595, 401],
+      "ball_position": []
+    },
+    {
+      "img_name": "test8",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [221, 480],
+      "ball_position": [253, 423]
+    },
+    {
+      "img_name": "ac91d0d0-4030-4a8d-80f4-6ea220b39c6e",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1690, 466],
+      "ball_position": [1183, 490]
+    },
+    {
+      "img_name": "340efbe5-3015-48e0-bf51-fa16025b0f0b",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1175, 417],
+      "ball_position": []
+    },
+    {
+      "img_name": "test5",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [220, 481],
+      "ball_position": []
+    },
+    {
+      "img_name": "548122cb-8c4d-4e55-a557-0eeaef78fb1d",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1605, 466],
+      "ball_position": [1559, 459]
+    },
+    {
+      "img_name": "98e0b352-d59f-4b0b-a0d1-b8b6caea74a9",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1602, 469],
+      "ball_position": [1260, 442]
+    },
+    {
+      "img_name": "715",
+      "layout": "layout1",
+      "hole_position": [825, 626],
+      "ball_position": []
+    },
+    {
+      "img_name": "78f5d046-8b3b-4ab4-844a-29f4bde7e390",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1174, 417],
+      "ball_position": []
+    },
+    {
+      "img_name": "b8572a39-92df-4f9d-8ef4-99edeee3e928",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1175, 419],
+      "ball_position": [1335, 418]
+    },
+    {
+      "img_name": "770",
+      "layout": "layout1",
+      "hole_position": [940, 544],
+      "ball_position": [1129, 623]
+    },
+    {
+      "img_name": "test10",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [222, 478],
+      "ball_position": [526, 457]
+    },
+    {
+      "img_name": "test3",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [596, 401],
+      "ball_position": [1106, 502]
+    },
+    {
+      "img_name": "149d3433-646b-47df-8b8f-f08d7b43cf6f",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1176, 421],
+      "ball_position": []
     }
   ]
 }
