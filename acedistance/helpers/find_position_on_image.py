@@ -85,7 +85,7 @@ def find_hole_position_on_image(img_after_path):
     if key == ord('q'):
         return None
 
-    print(f"Ball is located at: {position}")
+    print(f"Hole is located at: {position}")
     cv2.destroyAllWindows()
 
     return position
