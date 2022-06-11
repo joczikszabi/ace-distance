@@ -69,15 +69,28 @@ class ObjectDetection:
             out_dir=self.out_dir_hole)
 
         # Select largest contour on image
-        selected_contour = self.findContourWithLargestArea(img, lambda c: cv2.contourArea(c))
-        if selected_contour is None:
+        largest_contours = self.findContourWithLargestArea(img, lambda c: cv2.contourArea(c), num=2)
+        if len(largest_contours) == 0:
             return None
+
+        if len(largest_contours) == 1:
+            selected_contour = np.squeeze(largest_contours[0])
+
+        else:
+            # If the two detected contours are the same pole but the top and bottom part of it, select the lower one
+            area_diff = abs(cv2.contourArea(largest_contours[0]) - cv2.contourArea(largest_contours[1]))
+            horizontal_pos_diff = abs(max(largest_contours[0][1, :, 0]) - max(largest_contours[1][1, :, 0]))
+            if area_diff < 100 and horizontal_pos_diff < 50:
+                selected_contour = self.selectContourWithLowestPosition(largest_contours)
+                selected_contour = np.squeeze(selected_contour)
+
+            # Else select the larger one
+            else:
+                selected_contour = np.squeeze(largest_contours[0])
 
         # Calculate final position of object, render it on image and return
         y = max(selected_contour[:, 1])
         x = int(np.mean(np.array([v for v in selected_contour if v[1] == y])[:, 0]))
-
-        heightWidthRatioConstraint(selected_contour, min_height_width_ratio=4, max_height_width_ratio=15)
 
         pos_ace_hole = (x, y - 5)
         img_after_copy = self.img_after.copy()
@@ -144,7 +157,9 @@ class ObjectDetection:
 
         # Select largest contour on image
         selected_contour = self.findContourWithLargestArea(img, lambda c: cv2.minEnclosingCircle(c)[1])
-        if selected_contour is None:
+        selected_contour = np.squeeze(selected_contour)
+
+        if len(selected_contour) == 0:
             return None
 
         # Calculate final position of object, render it on image and return
@@ -352,7 +367,7 @@ class ObjectDetection:
 
         return img_new
 
-    def findContourWithLargestArea(self, img, func):
+    def findContourWithLargestArea2(self, img, func):
         """
         Finds contour in cnts with the largest area, the metrics for calculating
         the size of a contour is defined by func.
@@ -379,5 +394,48 @@ class ObjectDetection:
             if size > max_size:
                 selected_contour = c
                 max_size = size
+
+        return selected_contour
+
+    def findContourWithLargestArea(self, img, func, num=1):
+        """
+        Finds contour(s) on image and selects the ones with the largest area, the metrics for calculating
+        the size of a contour is defined by func.
+
+        Args:
+            img ([np.array]): cv2 image on which the function should be applied
+            func (func): Function for calculating the size of the contour
+            num: Keep the given number of contours with the largest area, default is 1
+
+        Returns:
+            Bool: Returns the contour(s) with the largest size.
+        """
+
+        img_copy = img.copy()
+        cnts, _ = cv2.findContours(img_copy, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnts.sort(key=func)
+        cnts = cnts[::-1]  # Reverse array since np.sort sorts by ascending order
+        return cnts[:num]
+
+    def selectContourWithLowestPosition(self, cnts):
+        """
+        Find contour with the lowest vertical position.
+
+        Args:
+            cnts ([np.array]): Array of contours
+
+        Returns:
+            Bool: Returns the contour with the lowest vertical position.
+        """
+
+        # Select the contour that is positioned lower on the image
+        selected_contour = cnts[0]
+        selected_y = max(np.squeeze(selected_contour)[:, 1])
+
+        for c in cnts[1:]:
+            y = max(np.squeeze(c)[:, 1])
+            if y > selected_y:
+                selected_contour = c
+                selected_y = y
 
         return selected_contour
