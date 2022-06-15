@@ -1,3 +1,4 @@
+import os
 import json
 import argparse
 from acedistance.helpers.load import loadConfig
@@ -65,8 +66,28 @@ if __name__ == "__main__":
         )
 
     except Exception as e:
-        # TODO: Tell Bram that if error is not empty when returned, don't even try to extract other attributes
-        r = {'error': e.args[0]}
+        outdir = args.output if args.output else configParser['PROGRAM']['DEFAULT_OUTDIR']
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+
+        json_path = f'{outdir}/result.json'
+
+        output = {
+            "version": configParser['PROGRAM']['VERSION'],
+            "distance": None,
+            "layout_name": args.layout_name,
+            "is_hole_detected": None,
+            "is_ball_detected": None,
+            "results_path": json_path,
+            "img_before_path": args.img_before_path,
+            "img_after_path": args.img_after_path,
+            "error": e.args[0]
+        }
+
+        output_json = json.dumps(output)
 
         # Print out result (endpoint is listening to the printed output)
-        print(json.dumps(r))
+        print(output_json)
+
+        with open(json_path, 'w') as f:
+            json.dump(output, f)
