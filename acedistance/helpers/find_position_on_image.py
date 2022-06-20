@@ -4,7 +4,7 @@ Returns the location (in pixels) of a select a point on the specified image
 
 import cv2
 import argparse
-from acedistance.helpers.load import loadConfig
+from load import loadConfig
 
 
 def find_position_on_image(img_before_path, img_after_path):
@@ -38,7 +38,7 @@ def find_ball_position_on_image(img_before_path, img_after_path):
 
             # Save selected pixels
             position = [x, y]
-            cv2.circle(img_a_tmp, tuple(position), 5, (0, 0, 255), -1)
+            cv2.circle(img_a_tmp, tuple(position), 2, (0, 0, 255), -1)
             cv2.imshow('Select ball (Image after)', img_a_tmp)
 
         elif event == cv2.EVENT_RBUTTONDOWN:
@@ -75,7 +75,7 @@ def find_hole_position_on_image(img_after_path):
 
             # Save selected pixels
             position = [x, y]
-            cv2.circle(img_a_tmp, tuple(position), 5, (0, 0, 255), -1)
+            cv2.circle(img_a_tmp, tuple(position), 2, (0, 0, 255), -1)
             cv2.imshow('Select hole', img_a_tmp)
 
     cv2.imshow('Select hole', img_a.copy())

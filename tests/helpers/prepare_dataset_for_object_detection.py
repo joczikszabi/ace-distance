@@ -43,7 +43,7 @@ def prepare_dataset_in_folder(directory):
             }
             output.append(img_data)
 
-    with open('../test_data/object_detection_test/test_data.json', 'w') as f:
+    with open('test_data.json', 'w') as f:
         json.dump(output, f)
 
 
