@@ -114,6 +114,7 @@ class AceDistance:
             "layout_name": self.layout_name,
             "is_hole_detected": self.is_hole_detected,
             "is_ball_detected": self.is_ball_detected,
+            "ball_on_the_green": self.is_ball_detected or self.error == 'Position out of grid',
             "results_path": self.result_img_path,
             "img_before_path": self.img_before_path,
             "img_after_path": self.img_after_path,

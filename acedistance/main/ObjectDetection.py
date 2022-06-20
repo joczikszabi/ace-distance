@@ -80,7 +80,7 @@ class ObjectDetection:
             # If the two detected contours are the same pole but the top and bottom part of it, select the lower one
             area_diff = abs(cv2.contourArea(largest_contours[0]) - cv2.contourArea(largest_contours[1]))
             horizontal_pos_diff = abs(max(largest_contours[0][1, :, 0]) - max(largest_contours[1][1, :, 0]))
-            if area_diff < 100 and horizontal_pos_diff < 50:
+            if area_diff < 275 and horizontal_pos_diff < 20:
                 selected_contour = self.selectContourWithLowestPosition(largest_contours)
                 selected_contour = np.squeeze(selected_contour)
 

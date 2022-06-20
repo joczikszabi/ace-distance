@@ -251,6 +251,29 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "hole_position": [1176, 421],
       "ball_position": []
+    },
+    {
+      "img_name": "eeb988d7-d799-48d6-a733-7c83a2cb69ed",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [767, 451],
+      "ball_position": []
+    },
+    {
+      "img_name": "295b4d23-bf95-4da0-8a54-731eaf8b6782",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [767, 451],
+      "ball_position": [852, 447]},
+    {
+      "img_name": "004edb01-1592-44aa-a0b4-7fc67a518f4e",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [767, 451],
+      "ball_position": [773, 420]
+    },
+    {
+      "img_name": "5569dc3c-4515-4eb7-9af0-95799b362c56",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [767, 453],
+      "ball_position": [737, 420]
     }
   ]
 }

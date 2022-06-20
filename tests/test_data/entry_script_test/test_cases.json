@@ -5,6 +5,7 @@
       "layout": "layout1",
       "is_hole_detected": true,
       "is_ball_detected": false,
+      "ball_on_the_green": false,
       "error": ""
     },
     {
@@ -12,6 +13,7 @@
       "layout": "layout1",
       "is_hole_detected": true,
       "is_ball_detected": true,
+      "ball_on_the_green": true,
       "error": ""
     },
     {
@@ -19,6 +21,7 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true,
+      "ball_on_the_green": true,
       "error": ""
     },
     {
@@ -26,6 +29,7 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": false,
+      "ball_on_the_green": false,
       "error": ""
     },
     {
@@ -33,6 +37,7 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": null,
       "is_ball_detected": null,
+      "ball_on_the_green": false,
       "error": "Image (after) not found on path:"
     },
     {
@@ -40,6 +45,7 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": null,
       "is_ball_detected": null,
+      "ball_on_the_green": false,
       "error": "Image (before) not found on path:"
     },
     {
@@ -47,6 +53,7 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true,
+      "ball_on_the_green": true,
       "error": ""
     },
     {
@@ -54,6 +61,7 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true,
+      "ball_on_the_green": true,
       "error": ""
     },
     {
@@ -61,6 +69,7 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true,
+      "ball_on_the_green": true,
       "error": ""
     },
     {
@@ -68,6 +77,7 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true,
+      "ball_on_the_green": true,
       "error": ""
     },
     {
@@ -75,7 +85,32 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "is_hole_detected": true,
       "is_ball_detected": true,
+      "ball_on_the_green": true,
       "error": ""
+    },
+    {
+      "img_name": "31ff48d7-1b18-4e4e-bef0-3019f50bf87c",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "is_hole_detected": true,
+      "is_ball_detected": false,
+      "ball_on_the_green": false,
+      "error": ""
+    },
+    {
+      "img_name": "81f09da2-2368-4729-828b-fd1194f7b18a",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "is_hole_detected": true,
+      "is_ball_detected": true,
+      "ball_on_the_green": true,
+      "error": "Position out of grid!"
+    },
+    {
+      "img_name": "195c85b7-1bb1-4177-b74b-920e1fefcaca",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "is_hole_detected": true,
+      "is_ball_detected": true,
+      "ball_on_the_green": true,
+      "error": "Position out of grid!"
     }
   ]
 }
