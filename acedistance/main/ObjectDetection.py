@@ -121,16 +121,16 @@ class ObjectDetection:
         img_before = self.applyGrayscale(img_before, out_dir=self.out_dir_ball)
         img_before = self.applyBitwiseNot(img_before, out_dir=self.out_dir_ball)
         img_before = self.applyAdaptiveThreshold(img_before, 17, 29, out_dir=self.out_dir_ball)
-        img_before = self.applyDilate(img_before, (5, 5), out_dir=self.out_dir_ball)
+        img_before = self.applyDilate(img_before, (5, 4), out_dir=self.out_dir_ball)
 
         # Prepare after image
         img_after = self.applyGrayscale(img_after, out_dir=self.out_dir_ball)
         img_after = self.applyBitwiseNot(img_after, out_dir=self.out_dir_ball)
-        img_after = self.applyAdaptiveThreshold(img_after, 13, 42, out_dir=self.out_dir_ball)
-        img_after = self.applyDilate(img_after, (1, 1), out_dir=self.out_dir_ball)
+        img_after = self.applyAdaptiveThreshold(img_after, 15, 42, out_dir=self.out_dir_ball)
+        img_after = self.applyDilate(img_after, (2, 2), out_dir=self.out_dir_ball)
 
         img = self.applySubtract(img_before, img_after, out_dir=self.out_dir_ball)
-        img = self.applyDilate(img, (2, 2), out_dir=self.out_dir_ball)
+        img = self.applyDilate(img, (1, 1), out_dir=self.out_dir_ball)
 
         # Apply constrains
         constraint_params = {
@@ -141,7 +141,7 @@ class ObjectDetection:
             "max_width": 25,
             "min_height": 1,
             "max_height": 25,
-            "min_height_width_ratio": 0.5,
+            "min_height_width_ratio": 0.45,
             "max_height_width_ratio": 1.67
         }
 
