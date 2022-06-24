@@ -35,9 +35,6 @@ def test_entry_script_returned_data(testcase):
 
 @pytest.mark.parametrize('testcase', get_testcases(basecls.data_dir))
 def test_results_exported(testcase):
-    if testcase['img_name'].startswith('81f09da2'):
-        alma = 1
-
     output_path = basecls.get_output_path(testcase['layout'], testcase['img_name'])
     estimate_distance.main(img_before_path=basecls.get_img_before_path(testcase['img_name']),
                            img_after_path=basecls.get_img_after_path(testcase['img_name']),

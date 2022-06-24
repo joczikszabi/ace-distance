@@ -4,7 +4,7 @@ Returns the location (in pixels) of a select a point on the specified image
 
 import cv2
 import argparse
-from load import loadConfig
+from acedistance.helpers.load import loadConfig
 
 
 def find_position_on_image(img_before_path, img_after_path):

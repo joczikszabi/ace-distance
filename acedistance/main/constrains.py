@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from shapely.geos import TopologicalError
-from shapely.geometry.polygon import Polygon
+from shapely.geometry.polygon import Polygon, Point
 
 
 def crossesFieldConstraint(contour, field_border_points, **_):
@@ -84,6 +84,40 @@ def withinFieldConstraint(contour, field_border_points, **_):
 
     return strictlyWithinFieldConstraint(contour, field_border_points) or crossesFieldConstraint(contour,
                                                                                                  field_border_points)
+
+
+def closeToBorderConstraint(contour, field_border_points, extr_func, min_distance_from_border=10, **_):
+    """ CONSTRAINT FUNCTION
+    A constraint function that checks whether a point extracted from the given contour is sufficiently far from
+    the green area's border. The extraction is done using a custom function 'extr_func' that could be for example
+    the function that extracts the golf hole or ball points from a given contour.
+    Suggested to use to discard contours that are 'too' close to the edge.
+
+    Args:
+        contour (np.array): List of points defining a contour returned from cv2
+        field_border_points (np.array): List of points defining the valid area where detection should happen
+        extr_func (func): A function handler that extracts a (x,y) point from the given contour
+        min_distance_from_border (Int): Minimum allowed distance between contour and border
+
+    Returns:
+        Bool: Returns True if the extracted point from the given contour is at least 'min_distance' pixels away
+              from the border, False otherwise
+    """
+
+    if contour.shape[0] < 3:
+        # If contour doesn't have enough points to make a Polygon, return False
+        return False
+
+    valid_area = Polygon(field_border_points)
+    contour = np.squeeze(contour)
+    p = Point(extr_func(contour))
+
+    try:
+        return min_distance_from_border < valid_area.exterior.distance(p)
+
+    except TopologicalError:
+        # Likely cause is invalidity of the geometry
+        return False
 
 
 def areaConstraint(contour, min_area=2, max_area=1000, **_):
