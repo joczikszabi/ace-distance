@@ -15,7 +15,8 @@ def test_entry_script_returned_data(testcase):
                                            img_after_path=basecls.get_img_after_path(testcase['img_name']),
                                            out_dir=output_path,
                                            layout_name=testcase['layout'],
-                                           debug_mode=False)
+                                           debug_mode=False,
+                                           use_cache=False)
 
     assert actual_result['img_before_path'] == basecls.get_img_before_path(testcase['img_name'])
     assert actual_result['img_after_path'] == basecls.get_img_after_path(testcase['img_name'])
@@ -40,7 +41,8 @@ def test_results_exported(testcase):
                            img_after_path=basecls.get_img_after_path(testcase['img_name']),
                            out_dir=output_path,
                            layout_name=testcase['layout'],
-                           debug_mode=False)
+                           debug_mode=False,
+                           use_cache=False)
 
     if testcase['is_hole_detected'] and testcase['is_ball_detected'] and not testcase['error']:
         assert os.path.isfile(f'{output_path}/result.jpg')
