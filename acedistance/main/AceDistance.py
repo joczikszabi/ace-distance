@@ -92,11 +92,12 @@ class AceDistance:
             img_result = cv2.circle(cv2.imread(self.img_after_path), self.pos_hole, 2, (0, 0, 255), 2)
             cv2.imwrite(f"{self.out_dir}/hole/result.jpg", img_result)
 
-            saveCache(self.layout_name, self.pos_hole)
-
         else:
             self.pos_hole = det.findAceHole()
             self.is_hole_detected = self.pos_hole is not None
+
+        if self.use_cache:
+            saveCache(self.layout_name, self.pos_hole)
 
         self.pos_ball = det.findGolfBall()
         self.is_ball_detected = self.pos_ball is not None

@@ -59,7 +59,7 @@ if __name__ == "__main__":
         # Run algorithm
         main(
             img_path=args.img_path,
-            out_dir=args.output,
+            out_dir=args.output if args.output else configParser['PROGRAM']['DEFAULT_OUTDIR'],
             layout_name=args.layout_name if args.layout_name else configParser['GRID']['LAYOUT_NAME'],
         )
 

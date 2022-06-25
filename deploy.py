@@ -5,7 +5,7 @@ from acedistance.helpers.load import loadConfig
 
 files_to_release = [
     'estimate_distance.py',
-    'refresh_cache.py'
+    'refresh_cache.py',
     'setup.sh',
     'README.md',
     'environment.yml',
