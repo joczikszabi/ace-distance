@@ -267,13 +267,44 @@
       "img_name": "004edb01-1592-44aa-a0b4-7fc67a518f4e",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "hole_position": [767, 451],
-      "ball_position": [773, 420]
+      "ball_position": [772, 420]
     },
     {
       "img_name": "5569dc3c-4515-4eb7-9af0-95799b362c56",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "hole_position": [767, 453],
       "ball_position": [737, 420]
+    },
+
+    {
+      "img_name": "61138507-0fe4-4e37-b3dc-10d9611821c9",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [658, 448],
+      "ball_position": []
+    },
+    {
+      "img_name": "55151342-8d18-4fe7-a56d-5ca38b7eeed4",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [658, 450],
+      "ball_position": []
+    },
+    {
+      "img_name": "17617b8b-7720-4e0c-b6f9-d94d82263193",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [658, 449],
+      "ball_position": []
+    },
+    {
+      "img_name": "0bb056ea-002f-46a3-a4e4-837b94703f76",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [657, 450],
+      "ball_position": []
+    },
+    {
+      "img_name": "3b4c988d-9a9a-43f8-b97b-c74968581676",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [658, 450],
+      "ball_position": []
     }
   ]
 }

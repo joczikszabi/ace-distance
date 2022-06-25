@@ -5,13 +5,14 @@ from acedistance.helpers.load import loadConfig
 from acedistance.main.AceDistance import AceDistance
 
 
-def main(img_before_path, img_after_path, out_dir, layout_name, debug_mode):
+def main(img_before_path, img_after_path, out_dir, layout_name, debug_mode, use_cache):
     ad = AceDistance(
         img_before_path=img_before_path,
         img_after_path=img_after_path,
         out_dir=out_dir,
         layout_name=layout_name,
-        debug_mode=debug_mode
+        debug_mode=debug_mode,
+        use_cache=use_cache
     )
     ad.run()
     return ad.defaultOutput()
@@ -49,6 +50,12 @@ if __name__ == "__main__":
                         help='Use it to export additional data with the results for debugging purposes.',
                         required=False)
 
+    parser.add_argument('-c',
+                        '--no_cache',
+                        action='store_true',
+                        help='Do not use caching for the ace hole position.',
+                        required=False)
+
     parser.add_argument('-v', '--version',
                         action='version',
                         version='acedistance {version}'.format(version=configParser['PROGRAM']['VERSION']))
@@ -62,7 +69,8 @@ if __name__ == "__main__":
             img_after_path=args.img_after_path,
             out_dir=args.output,
             layout_name=args.layout_name,
-            debug_mode=args.debug
+            debug_mode=args.debug,
+            use_cache=False if args.no_cache else True,
         )
 
     except Exception as e:

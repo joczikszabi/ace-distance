@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 from acedistance.main.constrains import withinFieldConstraint, strictlyWithinFieldConstraint, areaConstraint, \
-    dimensionConstraint, heightWidthRatioConstraint
+    dimensionConstraint, heightWidthRatioConstraint, closeToBorderConstraint
 
 
 class ObjectDetection:
@@ -53,7 +53,8 @@ class ObjectDetection:
             c_functions=[
                 withinFieldConstraint,
                 areaConstraint,
-                heightWidthRatioConstraint
+                heightWidthRatioConstraint,
+                closeToBorderConstraint
             ],
             params={
                 "field_border_points": self.gridlayout.layout['mask']['field_border'],
@@ -63,6 +64,8 @@ class ObjectDetection:
                 "max_width": 150,
                 "min_height": 100,
                 "max_height": 800,
+                'extr_func': self.getCoordinateHole,
+                'min_distance_from_border': 6,
                 "min_height_width_ratio": 2,
                 "max_height_width_ratio": 15
             },
@@ -89,11 +92,8 @@ class ObjectDetection:
                 selected_contour = np.squeeze(largest_contours[0])
 
         # Calculate final position of object, render it on image and return
-        y = max(selected_contour[:, 1])
-        x = int(np.mean(np.array([v for v in selected_contour if v[1] == y])[:, 0]))
-
-        pos_ace_hole = (x, y - 5)
         img_after_copy = self.img_after.copy()
+        pos_ace_hole = self.getCoordinateHole(selected_contour)
         img_result = cv2.circle(img_after_copy, pos_ace_hole, 2, (0, 0, 255), 2)
 
         if self.debug_mode:
@@ -120,28 +120,28 @@ class ObjectDetection:
         # Prepare before image
         img_before = self.applyGrayscale(img_before, out_dir=self.out_dir_ball)
         img_before = self.applyBitwiseNot(img_before, out_dir=self.out_dir_ball)
-        img_before = self.applyAdaptiveThreshold(img_before, 15, 30, out_dir=self.out_dir_ball)
-        img_before = self.applyDilate(img_before, (4, 4), out_dir=self.out_dir_ball)
+        img_before = self.applyAdaptiveThreshold(img_before, 17, 29, out_dir=self.out_dir_ball)
+        img_before = self.applyDilate(img_before, (5, 4), out_dir=self.out_dir_ball)
 
         # Prepare after image
         img_after = self.applyGrayscale(img_after, out_dir=self.out_dir_ball)
         img_after = self.applyBitwiseNot(img_after, out_dir=self.out_dir_ball)
-        img_after = self.applyAdaptiveThreshold(img_after, 15, 47, out_dir=self.out_dir_ball)
-        img_after = self.applyDilate(img_after, (3, 2), out_dir=self.out_dir_ball)
+        img_after = self.applyAdaptiveThreshold(img_after, 15, 42, out_dir=self.out_dir_ball)
+        img_after = self.applyDilate(img_after, (2, 2), out_dir=self.out_dir_ball)
 
         img = self.applySubtract(img_before, img_after, out_dir=self.out_dir_ball)
-        img = self.applyMorphology(img, (2, 2), 1, out_dir=self.out_dir_ball)
+        img = self.applyDilate(img, (1, 1), out_dir=self.out_dir_ball)
 
         # Apply constrains
         constraint_params = {
             "field_border_points": self.gridlayout.layout['mask']['field_border'],
             "min_area": 1,
             "max_area": 40,
-            "min_width": 1,
+            "min_width": 2,
             "max_width": 25,
             "min_height": 1,
             "max_height": 25,
-            "min_height_width_ratio": 0.5,
+            "min_height_width_ratio": 0.45,
             "max_height_width_ratio": 1.67
         }
 
@@ -163,11 +163,8 @@ class ObjectDetection:
             return None
 
         # Calculate final position of object, render it on image and return
-        x = int(np.ceil(np.mean(selected_contour[:, 0])))
-        y = int(np.ceil(np.mean(selected_contour[:, 1])))
-        pos_ball = (x, y)
-
         img_after_copy = self.img_after.copy()
+        pos_ball = self.getCoordinateBall(selected_contour)
         img_result = cv2.circle(img_after_copy, pos_ball, 2, (0, 0, 255), 2)
 
         if self.debug_mode:
@@ -201,6 +198,38 @@ class ObjectDetection:
             self.n_masks_applied += 1
 
         return img
+
+    def getCoordinateHole(self, contour):
+        """
+        Calculates the (x,y) coordinates from a given contour for the golf hole.
+
+        Args:
+        contour ([np.array]): contour from where the coordinate needs to be extracted
+
+        Returns:
+        tuple: Returns (x, y) coordinate of the hole
+        """
+
+        y = max(contour[:, 1])
+        x = int(np.mean(np.array([v for v in contour if v[1] == y])[:, 0]))
+
+        return x - 1, y - 7
+
+    def getCoordinateBall(self, contour):
+        """
+        Calculates the (x,y) coordinates from a given contour for the golf ball.
+
+        Args:
+        contour ([np.array]): contour from where the coordinate needs to be extracted
+
+        Returns:
+        tuple: Returns (x, y) coordinate of the ball
+        """
+
+        x = int(np.ceil(np.mean(contour[:, 0])))
+        y = int(np.ceil(np.mean(contour[:, 1])))
+
+        return x - 1, y - 1
 
     def applyGrayscale(self, img, out_dir=None):
         """

@@ -4,12 +4,13 @@ import json
 import numpy as np
 from acedistance.main.Grid import GridLayout
 from acedistance.helpers.load import loadConfig
+from acedistance.helpers.cache import saveCache, checkCache
 from acedistance.main.ObjectDetection import ObjectDetection
 from acedistance.main.DistanceEstimation import DistanceEstimation
 
 
 class AceDistance:
-    def __init__(self, img_before_path, img_after_path, out_dir=None, layout_name=None, debug_mode=False):
+    def __init__(self, img_before_path, img_after_path, out_dir=None, layout_name=None, debug_mode=False, use_cache=True):
         configParser = loadConfig()
 
         self.img_before_path = img_before_path
@@ -19,6 +20,7 @@ class AceDistance:
         self.result_json_path = f'{self.out_dir}/result.json'
         self.layout_name = layout_name if layout_name else configParser['GRID']['LAYOUT_NAME']
         self.debug_mode = debug_mode
+        self.use_cache = use_cache
 
         # Properties needed for result
         self.version = configParser['PROGRAM']['VERSION']
@@ -80,8 +82,21 @@ class AceDistance:
                               out_dir=self.out_dir,
                               debug_mode=self.debug_mode)
 
-        self.pos_hole = det.findAceHole()
-        self.is_hole_detected = self.pos_hole is not None
+        cache_exists, cache = checkCache(self.layout_name)
+
+        if self.use_cache and cache_exists:
+            self.pos_hole = cache['position']
+            self.is_hole_detected = self.pos_hole is not None
+
+            # For debugging
+            img_result = cv2.circle(cv2.imread(self.img_after_path), self.pos_hole, 2, (0, 0, 255), 2)
+            cv2.imwrite(f"{self.out_dir}/hole/result.jpg", img_result)
+
+            saveCache(self.layout_name, self.pos_hole)
+
+        else:
+            self.pos_hole = det.findAceHole()
+            self.is_hole_detected = self.pos_hole is not None
 
         self.pos_ball = det.findGolfBall()
         self.is_ball_detected = self.pos_ball is not None
