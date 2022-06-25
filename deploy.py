@@ -5,6 +5,7 @@ from acedistance.helpers.load import loadConfig
 
 files_to_release = [
     'estimate_distance.py',
+    'refresh_cache.py'
     'setup.sh',
     'README.md',
     'environment.yml',
@@ -17,7 +18,8 @@ files_to_release = [
     os.path.join('acedistance', 'main', 'Grid.py'),
     os.path.join('acedistance', 'main', 'constrains.py'),
     os.path.join('acedistance', 'config', 'config.ini'),
-    os.path.join('acedistance', 'helpers', 'load.py')
+    os.path.join('acedistance', 'helpers', 'load.py'),
+    os.path.join('acedistance', 'helpers', 'cache.py')
 ]
 
 directories_to_release = [

@@ -304,15 +304,7 @@
       "img_name": "3b4c988d-9a9a-43f8-b97b-c74968581676",
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "hole_position": [658, 450],
-      "ball_position": [],
-      "cache": true
-    },
-    {
-      "img_name": "a020eea9-8301-4d0f-9813-8bb013b99feb",
-      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
-      "hole_position": [658, 450],
-      "ball_position": [],
-      "cache": true
+      "ball_position": []
     }
   ]
 }
