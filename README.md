@@ -79,17 +79,19 @@ cd tests/helpers && python prepare_dataset_for_object_detection.py --directory [
 ```
 
 The preparation steps are the following:
+
 1. First select the golf ball on the after image window (for comparison the before image is also shown)
 2. Select the golf hole
 
 The following actions are allowed:
+
 - Left click: Selects a point on the image
 - Right click: Removes the selected point on the image
 - Space: Saves the selected point (or None if not selected) and goes to the next step
 - q: Quits preparation and saves data that have been selected
 
-
 After running the script, the expected values will be exported to test_data.json
+
 # Deploy
 
 In order to deploy the module for use on the production server, use the deployment script as follows:
@@ -100,6 +102,48 @@ python deploy.py
 
 This script will create a minimized version of the ace-distance module ready for deployment on the production server,
 and a zipped version of it. The minimized version includes only the necessary modules and packages to run the algorithm.
+
+# Creating a new layout
+
+To create a new layout, use the script 'create_new_layout.py' in the root folder. It will automatically create a new
+folder in acedistance/layouts with the specified name (first argument) and all the corresponding subfolders and
+necessary files.
+
+Example usage:
+
+```
+python create_new_layout.py "demo" --description="Grid layout for cameras in Amsterdam" --node_distance=2 --grid_imgs_path=path/to/imgs/dir
+```
+
+The first positional argument is the name of the layout which is required in every case. The following parameters are
+optional that are described here:
+
+- --description: Short description of the new layout.
+- --node_distance: Uniform distance between nodes in meters (default is 2 meters).
+- --grid_imgs_path: Path to the folder containing the images of the grid layout that are used to define the grid node
+  positions.
+
+After creating a new layout, the grid.json file has to be fine-tuned for the new camera which requires additional steps:
+
+- Specify node positions
+- Specify border of green field
+
+These steps can be done separately using the following scripts:
+
+- Specify node positions:
+  ```
+  python acedistance/helpers/grid/set_grid_points_col_wise.py
+  ```
+
+- Specify border of green field:
+  ```
+  python create_new_mask.py [layout_name]
+  ```
+  The script loads the first image it finds under acedistance/layouts/[layout_name]/imgs therefore the layout images
+  that define the grid node positions should had been copied to this folder before running this script.
+
+After using the described helper functions, the obtained data have to be copied to the grid.json file to the correct
+property.
 
 # Making a release
 
