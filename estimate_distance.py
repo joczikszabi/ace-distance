@@ -86,6 +86,7 @@ if __name__ == "__main__":
             "layout_name": args.layout_name,
             "is_hole_detected": None,
             "is_ball_detected": None,
+            "ball_on_the_green": None,
             "results_path": json_path,
             "img_before_path": args.img_before_path,
             "img_after_path": args.img_after_path,
