@@ -305,6 +305,24 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "hole_position": [658, 450],
       "ball_position": []
+    },
+    {
+      "img_name": "79f6f1b0-833d-4662-855d-f6174e503268",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [842, 484],
+      "ball_position": []
+    },
+    {
+      "img_name": "d8a22a32-de43-4189-a24c-8feb495b2dc0",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [1138, 434],
+      "ball_position": [1056, 413]
+    },
+    {
+      "img_name": "1d85c346-bf7c-4a65-88d3-c4c63b41273d",
+      "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
+      "hole_position": [457, 440],
+      "ball_position": [140, 474]
     }
   ]
 }

@@ -126,7 +126,7 @@ class ObjectDetection:
         # Prepare after image
         img_after = self.applyGrayscale(img_after, out_dir=self.out_dir_ball)
         img_after = self.applyBitwiseNot(img_after, out_dir=self.out_dir_ball)
-        img_after = self.applyAdaptiveThreshold(img_after, 15, 42, out_dir=self.out_dir_ball)
+        img_after = self.applyAdaptiveThreshold(img_after, 17, 42, out_dir=self.out_dir_ball)
         img_after = self.applyDilate(img_after, (2, 2), out_dir=self.out_dir_ball)
 
         img = self.applySubtract(img_before, img_after, out_dir=self.out_dir_ball)
