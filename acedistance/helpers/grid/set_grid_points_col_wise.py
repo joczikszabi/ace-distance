@@ -65,11 +65,20 @@ if __name__ == "__main__":
         exit("--layout flag not specified!")
 
     # Read and display specified image
-    img = cv2.imread(f'../../layouts/{args.layout}/imgs/{args.image}.png', 1)
+    img_path = os.path.join(os.path.dirname(__file__), '..', '..', 'layouts', args.layout, 'imgs', args.image)
+    img = cv2.imread(img_path)
     cv2.imshow('image', img)
 
     # Load grid config
-    with open('grid.json', 'r') as f:
+    if not os.path.isfile('node_points.json'):
+        node_points = {
+            'nodes': []
+        }
+
+        with open('node_points.json', 'w') as f:
+            json.dump(node_points, f)
+
+    with open('node_points.json', 'r') as f:
         g_json = json.load(f)
         grid_points['nodes'] = g_json['nodes']
 
@@ -81,7 +90,7 @@ if __name__ == "__main__":
 
     # Print and save grid points in 'out_dir' before closing window
     print(grid_points)
-    with open('grid.json', 'w') as f:
+    with open('node_points.json', 'w') as f:
         json.dump(grid_points, f)
 
     # Close window
