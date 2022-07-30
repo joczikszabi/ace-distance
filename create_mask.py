@@ -1,16 +1,14 @@
 import os
+import cv2
+import glob
 import json
 import argparse
-from acedistance.helpers.mask.draw_mask import draw_mask
-from acedistance.helpers.mask.set_mask_points import set_mask_points
+from acedistance.helpers.mask import draw_mask, set_mask_points
 
 
 def create_mask(layout_name):
     """
-    Creates a new mask for a layout. This function only creates the necessary files and folders but
-    the layout definition file (grid.json) will have to be set up separately.
-
-    The selected points will be exported in mask_points.json
+    Creates a new mask for a layout. The selected points will be exported in mask_points.json
 
     Args:
         layout_name (str): Name of the layout for which the mask will be created
@@ -30,12 +28,19 @@ def create_mask(layout_name):
     mask_points = set_mask_points(layout_name)
 
     # Draw mask
-    img_path = os.path.join(IMGS_PATH, os.listdir(IMGS_PATH)[0])
+    try:
+        img_path = glob.glob(os.path.join(IMGS_PATH, '*.png'), recursive=False)[0]
+    except IndexError:
+        exit(f'Could not find any images under {IMGS_PATH}. Make sure images have .png extension.')
+
     draw_mask(img_path, mask_points)
+    cv2.destroyAllWindows()
 
     # Save mask points before closing window
     with open('mask_point.json', 'w') as f:
         json.dump(mask_points, f)
+
+    print(f'Mask points have been successfully exported in mask_points.json...')
 
 
 if __name__ == "__main__":

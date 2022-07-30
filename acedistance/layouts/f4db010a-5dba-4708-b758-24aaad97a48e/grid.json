@@ -1,4 +1,5 @@
-{ "name": "f4db010a-5dba-4708-b758-24aaad97a48e",
+{
+  "name": "f4db010a-5dba-4708-b758-24aaad97a48e",
   "description": "Grid layout in Amsterdam",
   "mask": {
     "img_dimensions": [1920, 1080],

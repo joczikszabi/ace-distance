@@ -14,6 +14,9 @@ date_format_str = '%d-%m-%Y %H:%M:%S'
 def isValid(cache):
     """ Checks if cache data is valid based on expiration date
 
+    Args:
+        cache (object): Cache object
+
     Returns:
         Boolean: The cached data is valid or not
     """
@@ -60,6 +63,7 @@ def saveCache(layout, position, name='', overwrite=False):
         overwrite (bool): Optional, if cache exists already, should it be overwritten
 
     Returns:
+        None
     """
 
     # First check if cache already exists

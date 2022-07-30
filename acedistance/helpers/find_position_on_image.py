@@ -1,5 +1,5 @@
 """
-Returns the location (in pixels) of a select a point on the specified image
+Returns the location (in pixels) of a selected point on the specified image
 """
 
 import cv2

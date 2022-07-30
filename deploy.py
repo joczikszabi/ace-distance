@@ -17,14 +17,13 @@ files_to_release = [
     os.path.join('acedistance', 'main', 'ObjectDetection.py'),
     os.path.join('acedistance', 'main', 'Grid.py'),
     os.path.join('acedistance', 'main', 'constrains.py'),
-    os.path.join('acedistance', 'config', 'config.ini'),
-    os.path.join('acedistance', 'helpers', 'load.py'),
-    os.path.join('acedistance', 'helpers', 'cache.py')
+    os.path.join('acedistance', 'config', 'config.ini')
 ]
 
 directories_to_release = [
     'demo',
-    os.path.join('acedistance', 'layouts')
+    os.path.join('acedistance', 'layouts'),
+    os.path.join('acedistance', 'helpers')
 ]
 
 

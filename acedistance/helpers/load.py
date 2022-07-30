@@ -7,7 +7,10 @@ import configparser
 def loadConfig():
     """ Loads config data from config file
 
-    Returns: Config data in config.ini
+    Args:
+
+    Returns:
+        configparser: Config data in config.ini
     """
 
     parser = configparser.ConfigParser()
@@ -24,7 +27,8 @@ def loadLayout(layout_name):
     Args:
         layout_name (str): Layout name (stored in acedistance/layouts)
 
-    Returns: Layout data in grid.json
+    Returns:
+        object: Layout data in grid.json
     """
 
     layout_path = os.path.join(os.path.dirname(__file__), '..', 'layouts', f'{layout_name}', 'grid.json')
