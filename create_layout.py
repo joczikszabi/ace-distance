@@ -7,7 +7,8 @@ from distutils.dir_util import copy_tree
 def create_layout(layout_name, description=None, node_distance=2, grid_imgs_path=None):
     """
     Creates a new layout under acedistance/layouts. This function only creates the necessary files and folders but
-    the layout definition file (grid.json) will have to be set up separately.
+    the properties in the layout definition file (grid.json) will have to be set up separately.
+    Use create_mask.py and create_nodes.py to setup the mask and the node points for the layout definition file.
 
     Args:
         layout_name (str): Name of the new layout
@@ -49,15 +50,20 @@ def create_layout(layout_name, description=None, node_distance=2, grid_imgs_path
         'distance_between_nodes': node_distance,
         'nodes': None
     }
+
     with open(GRID_FILE, 'w') as f:
         json.dump(grid_definition, f)
+
+    print(f'Grid layout {layout_name} has been successfully created...')
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Creates a new layout definition')
-    parser.add_argument('name',
+    parser.add_argument('-n',
+                        '--name',
                         type=str,
-                        help='Name of the new layout.')
+                        help='Name of the new layout.',
+                        required=True)
 
     parser.add_argument('-d',
                         '--description',
@@ -83,7 +89,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        # Run algorithm
         create_layout(
             layout_name=args.name,
             description=args.description,
