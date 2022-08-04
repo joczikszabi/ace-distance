@@ -323,6 +323,54 @@
       "layout": "f4db010a-5dba-4708-b758-24aaad97a48e",
       "hole_position": [457, 440],
       "ball_position": [140, 474]
+    },
+    {
+      "img_name": "0e17545d-0b4f-4731-bf8a-7305a8e2951c",
+      "layout": "delfland",
+      "hole_position": [825, 403],
+      "ball_position": [711, 441]
+    },
+    {
+      "img_name": "a27162d3-8dd1-4e64-b169-e1b6301ae26e",
+      "layout": "delfland",
+      "hole_position": [824, 403],
+      "ball_position": [992, 426]
+    },
+    {
+      "img_name": "303c93f5-eb93-492d-80d5-362bfed6cda2",
+      "layout": "delfland",
+      "hole_position": [823, 403],
+      "ball_position": [829, 373]
+    },
+    {
+      "img_name": "b5538d21-4a1f-476a-88b1-415339e9507f",
+      "layout": "delfland",
+      "hole_position": [825, 403],
+      "ball_position": [895, 420]
+    },
+    {
+      "img_name": "713d41fa-2779-456e-81e0-93ad4ab42d76",
+      "layout": "delfland",
+      "hole_position": [823, 403],
+      "ball_position": [1534, 542]
+    },
+    {
+      "img_name": "8d166417-8bc4-4fed-aed3-50ae2a511de6",
+      "layout": "delfland",
+      "hole_position": [824, 404],
+      "ball_position": [924, 428]
+    },
+    {
+      "img_name": "35c06f57-dd82-4aeb-832e-af3e1a2965a6",
+      "layout": "delfland",
+      "hole_position": [824, 405],
+      "ball_position": [799, 454]
+    },
+    {
+      "img_name": "989e0e94-e094-47eb-acee-d9631f62b23a",
+      "layout": "delfland",
+      "hole_position": [825, 402],
+      "ball_position": [599, 447]
     }
   ]
 }

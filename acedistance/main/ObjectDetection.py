@@ -181,7 +181,7 @@ class ObjectDetection:
             img (np.array): List of points defining contours returned from cv2
             c_functions ([functions]): Array of constraint functions that should be checked for each contour
             params (dict): Dictionary of parameters for the constraint functions (the necessary parameters are unpacked)
-            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            out_dir (str): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns image where those contours that did not pass all restrictions are removed
@@ -237,7 +237,7 @@ class ObjectDetection:
 
         Args:
             img ([np.array]): cv2 image on which the function should be applied
-            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            out_dir (str): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns the original image with grayscale applied on it
@@ -258,7 +258,7 @@ class ObjectDetection:
 
         Args:
             img ([np.array]): cv2 image on which the function should be applied
-            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            out_dir (str): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns the original image with inverted colors
@@ -280,7 +280,7 @@ class ObjectDetection:
         Args:
             img ([np.array]): cv2 image on which the function should be applied
             ksize (tuple): Size of the kernel which should be used in the dilate function
-            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            out_dir (str): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns the original image with erode applied on it
@@ -306,7 +306,7 @@ class ObjectDetection:
             blockSize (Int): cv2 adaptiveThreshold parameter
             C (Int): cv2 adaptiveThreshold parameter
             maxValue (Int): cv2 adaptiveThreshold parameter
-            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            out_dir (str): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns the original image with adaptive threshold detection applied on it
@@ -330,7 +330,7 @@ class ObjectDetection:
         Args:
             img ([np.array]): cv2 image on which the function should be applied
             ksize (tuple): Size of the kernel which should be used in the dilate function
-            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            out_dir (str): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns the original image with dilate applied on it
@@ -354,7 +354,7 @@ class ObjectDetection:
         Args:
             img_before ([np.array]): cv2 image taken before shooting the golf ball
             img_after ([np.array]): cv2 image taken after shooting the golf ball
-            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            out_dir (str): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns an image with contours that are only apparent on the after image and not on the before one
@@ -379,7 +379,7 @@ class ObjectDetection:
             img ([np.array]): cv2 image on which the function should be applied
             ksize (tuple): Size of the kernel which should be used in the dilate function
             iterations (Int):
-            out_dir (string): Directory path where image should be exported after applying mask (only in debug mode)
+            out_dir (str): Directory path where image should be exported after applying mask (only in debug mode)
 
         Returns:
             Bool: Returns the original image with morphology applied on it

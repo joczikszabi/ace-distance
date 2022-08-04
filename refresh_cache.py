@@ -8,6 +8,14 @@ from acedistance.main.ObjectDetection import ObjectDetection
 
 
 def main(img_path, out_dir, layout_name):
+    """ Creates or overwrites an existing active cache with the detected hole's position on the given image
+
+    Args:
+        img_path (list(str))): List of files to copy
+        out_dir (str): Directory where the image with the detected hole position should be exported to
+        layout_name (str): Name of the new layout for which the cache should be created
+    """
+
     if not os.path.isfile(img_path):
         print(f'Image not found on path: {img_path}')
         return
@@ -56,7 +64,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        # Run algorithm
         main(
             img_path=args.img_path,
             out_dir=args.output if args.output else configParser['PROGRAM']['DEFAULT_OUTDIR'],

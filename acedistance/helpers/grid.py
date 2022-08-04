@@ -97,7 +97,7 @@ def render_status(img, col_idx, row_idx, n_rows, len_col):
 
     cv2.putText(img,
                 f"Current column: {col_idx + 1}   Current row: {row_idx + 1}    Remaining points in current column: {n_rows - len_col}",
-                (10, 714), cv2.FONT_HERSHEY_SIMPLEX, 0.4,
+                (10, 1060), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                 (0, 0, 0), 1, cv2.LINE_AA)
 
 
@@ -116,7 +116,7 @@ def render_info(img, n_rows, n_cols):
     """
 
     cv2.putText(img, f"Total number of column: {n_cols}   Total number of row: {n_rows}",
-                (925, 714), cv2.FONT_HERSHEY_SIMPLEX, 0.4,
+                (1450, 1060), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                 (0, 0, 0), 1, cv2.LINE_AA)
 
 
@@ -168,7 +168,7 @@ def set_nodes(img_path, n_rows, n_cols):
 
     img = cv2.imread(img_path, 1)
     add_transparent_background(img, 0, 0, 1920, 150, 0.3, 0)
-    add_transparent_background(img, 0, 700, 1920, 180, 0, 255)
+    add_transparent_background(img, 0, 1030, 1920, 50, 0, 255)
     render_commands(img)
     render_info(img, n_rows, n_cols)
 
